@@ -493,6 +493,11 @@ function sauvegarderProfile() {
 function ouvrirSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').style.display = 'block'; }
 function fermerSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').style.display = 'none'; }
 
+function verrouillerApp() {
+  fermerSidebar();
+  afficherToast("Application verrouillée.");
+}
+
 function naviguer(secId, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => {
@@ -644,7 +649,7 @@ function soumettreDemande() {
     calculerStatsAgent();
     afficherDemandesClient();
     afficherDemandesAgent();
-  }, 2000);
+  }, 1000);
 }
 
 // CHAT ISOLATION & NOTIFICATIONS
@@ -682,8 +687,6 @@ function envoyerMessage() {
   
   input.value = "";
   rafraichirChat();
-  
-  // Simuler alerte de notification pour le destinataire
   declencherNotificationVisuelle();
 }
 
@@ -692,9 +695,7 @@ function declencherNotificationVisuelle() {
   document.getElementById('chatNavDot').style.display = 'block';
 }
 
-function verifierNotificationsNonLues() {
-  // Optionnel: gère l'état initial des notifications
-}
+function verifierNotificationsNonLues() {}
 
 function effacerNotifications() {
   document.getElementById('notifDot').style.display = 'none';
@@ -729,7 +730,6 @@ function calculerStatsAgent() {
   document.getElementById('statDay').innerText = totalJour.toLocaleString() + ' FC';
   document.getElementById('statTotalDossiers').innerText = demandes.length;
   
-  // Mettre à jour le lien WhatsApp du rapport
   let texteRapport = `*RAPPORT VODACOM AGENT PRO*%0A- Total Dossiers : ${demandes.length}%0A- Revenus Total : ${totalJour.toLocaleString()} FC%0A- Date : ${new Date().toLocaleDateString()}`;
   document.getElementById('whatsappReportBtn').href = `https://wa.me/?text=${texteRapport}`;
 }
@@ -814,4 +814,3 @@ function afficherToast(msg) {
 </script>
 </body>
 </html>
-
