@@ -1,0 +1,22 @@
+{
+  "name": "Créations et Opérations Vodacom",
+  "short_name": "Vodacom Pro",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#e60000",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "Voda-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "Voda-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+

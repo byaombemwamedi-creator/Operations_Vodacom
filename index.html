@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<title>Créations et Opérations Vodacom</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="Voda-logo.png">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root {
+--voda-red: #e60000;
+--voda-dark: #121212;
+--voda-card: #1e1e1e;
+--voda-text: #ffffff;
+--voda-muted: #aaa;
+--border: #2a2a2a;
+--success: #10b981;
+--warning: #f59e0b;
+--whatsapp: #25D366;
+--facebook: #1877F2;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+body { background-color: var(--voda-dark); color: var(--voda-text); padding-bottom: 75px; overflow-x: hidden; }
+
+/* HEADER & SIDEBAR */
+header {
+background: var(--voda-dark); padding: 12px 15px;
+display: flex; justify-content: space-between; align-items: center;
+border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+}
+header h1 { font-size: 0.85rem; font-weight: 600; color: var(--voda-muted); }
+.sidebar-overlay {
+position: fixed; top:0; left:0; right:0; bottom:0;
+background: rgba(0,0,0,0.8); z-index: 200; display: none;
+}
+.sidebar {
+position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+background: #181818; border-right: 1px solid var(--border);
+z-index: 300; transition: left 0.3s ease; padding: 20px;
+display: flex; flex-direction: column; gap: 12px; overflow-y: auto;
+}
+.sidebar.open { left: 0; }
+.profile-card { background: var(--voda-card); padding: 15px; border-radius: 10px; text-align: center; }
+.avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--voda-red); margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+
+/* BTNS & INPUTS */
+.btn-sec { background: #333; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-align: left; font-size: 0.85rem; }
+.btn-danger { background: var(--voda-red); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-align: left; font-size: 0.85rem; }
+.btn-success { background: var(--success); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+.btn-whatsapp { background: var(--whatsapp); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem; }
+
+/* CONTAINER PRINCIPAL */
+.container { padding: 15px; max-width: 500px; margin: 0 auto; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* CARDS & MODALS */
+.card { background: var(--voda-card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 12px; }
+.card label { display: block; font-size: 0.85rem; margin-top: 10px; margin-bottom: 5px; color: var(--voda-muted); }
+.card input, .card select, .card textarea { width: 100%; padding: 10px; background: #222; border: 1px solid var(--border); color: white; border-radius: 6px; }
+
+/* BANNIÈRE D'ACCUEIL */
+.welcome-banner {
+background: var(--voda-red);
+border-radius: 12px;
+padding: 15px;
+margin-bottom: 20px;
+}
+.welcome-banner h2 { font-size: 1.2rem; font-weight: bold; margin-bottom: 4px; }
+.welcome-banner p { font-size: 0.85rem; opacity: 0.9; }
+
+.services-header {
+display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+}
+.services-header h2 { font-size: 1.5rem; font-weight: 800; line-height: 1.1; }
+
+.search-box {
+width: 100%; padding: 12px 15px; background: #222; border: 1px solid var(--border);
+border-radius: 8px; color: white; margin-bottom: 15px; font-size: 0.9rem;
+}
+
+.services-grid {
+display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+}
+.service-btn-card {
+background: var(--voda-red);
+border-radius: 12px;
+padding: 20px 10px;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+text-align: center;
+cursor: pointer;
+box-shadow: 0 4px 10px rgba(230, 0, 0, 0.2);
+transition: transform 0.15s ease;
+}
+.service-btn-card:active { transform: scale(0.96); }
+.service-btn-card .icon-box {
+background: white; border-radius: 8px; padding: 6px;
+display: flex; align-items: center; justify-content: center;
+margin-bottom: 10px; width: 42px; height: 42px; font-size: 1.4rem;
+}
+.service-btn-card span {
+font-size: 0.85rem; font-weight: bold; color: white; line-height: 1.2;
+}
+
+.pro-badge-box {
+background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+border: 1px solid var(--voda-red);
+padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.8rem;
+}
+
+@keyframes spinDots {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+.spinner-ring { animation: spinDots 1s linear infinite; }
+
+/* MODAL VISIONNEUSE D'IMAGE */
+#imageModal {
+position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+background: rgba(0,0,0,0.85); z-index: 10000;
+display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.image-viewer-card {
+background: var(--voda-card); border: 1px solid var(--voda-red);
+border-radius: 12px; padding: 15px; max-width: 380px; width: 100%;
+display: flex; flex-direction: column; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+.image-viewer-card img {
+max-width: 100%; max-height: 55vh; border-radius: 8px; object-fit: contain; margin-bottom: 15px; border: 1px solid var(--border);
+}
+.image-actions {
+display: flex; gap: 10px; width: 100%;
+}
+.btn-dl { background: var(--success); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; flex: 1; cursor: pointer; text-align: center; text-decoration: none; font-size: 0.85rem; }
+.btn-close-img { background: var(--voda-red); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; flex: 1; cursor: pointer; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="fermerSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <div class="profile-card">
+    <div class="avatar">👤</div>
+    <h3 id="sidebarProfileName">Byaombe Alembe</h3>
+    <p style="font-size: 0.75rem; color: var(--voda-muted);" id="sidebarProfilePhone">Client Vodacom Pro</p>
+  </div>
+  
+  <button onclick="ouvrirProfilModal()" class="btn-sec">📝 Modifier mon Profil</button>
+  <button onclick="ouvrirModalGuide()" class="btn-sec">📖 Comment utiliser l'app</button>
+  <button onclick="ouvrirModalAgent()" class="btn-sec" id="roleToggle">🔄 Mode : CLIENT</button>
+  <button onclick="verrouillerApp()" class="btn-danger">🔒 Verrouiller l'application</button>
+</div>
+
+<!-- HEADER TOP -->
+<header>
+  <div style="display:flex; align-items:center; gap:10px;">
+    <button onclick="playClickSound(); ouvrirSidebar();" style="width:auto; margin:0; padding:6px 10px;" class="btn-sec">☰</button>
+    <h1>Vodacom Agent Pro</h1>
+  </div>
+  <div id="notificationBadgeHeader" onclick="naviguer('sec-chat', null)" style="cursor:pointer; position:relative; font-size:1.2rem;">
+    🔔<span id="notifDot" style="display:none; position:absolute; top:-2px; right:-2px; width:10px; height:10px; background:var(--voda-red); border-radius:50%;"></span>
+  </div>
+</header>
+
+<div id="toast" style="display:none; position:fixed; top:70px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:10px 20px; border-radius:5px; z-index:500; font-size:0.9rem; border: 1px solid var(--voda-red);">Notification</div>
+
+<div class="container">
+  <!-- 1. PAGE ACCUEIL -->
+  <div id="sec-services" class="section active">
+    <div class="welcome-banner">
+      <h2 id="welcomeUserName">Bonjour Byaombe Alembe ! 👋</h2>
+      <p>Sélectionnez un service ci-dessous pour initier votre requête rapidement.</p>
+    </div>
+
+    <div class="pro-badge-box">
+      <strong style="color:var(--voda-red); display:block; margin-bottom:5px;">✨ Avantages Professionnels :</strong>
+      <ul style="padding-left:15px; color:#ddd; line-height:1.4;">
+        <li>Isolation des chats et sécurité de bout en bout.</li>
+        <li>Tableau de paiement direct via le numéro unique **0811301919**.</li>
+        <li>Suivi des requêtes en temps réel (Statut instantané).</li>
+      </ul>
+    </div>
+    
+    <div class="services-header">
+      <h2>Services<br>Disponibles</h2>
+    </div>
+
+    <input type="text" class="search-box" id="searchServiceInput" placeholder="Rechercher un service..." onkeyup="filtrerServices(this.value)">
+
+    <div class="services-grid" id="mainServicesGrid">
+      <div class="service-btn-card" onclick="ouvrirOption('Ouverture et migration + tic-tac')">
+        <div class="icon-box">🔄</div>
+        <span>Ouverture et migration + tic-tac</span>
+      </div>
+      <div class="service-btn-card" onclick="ouvrirOption('Swapp')">
+        <div class="icon-box">🔀</div>
+        <span>Swapp</span>
+      </div>
+      <div class="service-btn-card" onclick="ouvrirOption('Creation IRM + migration tic-tac')">
+        <div class="icon-box">⚙️</div>
+        <span>Creation IRM + migration tic-tac</span>
+      </div>
+      <div class="service-btn-card" onclick="ouvrirOption('Creation sim swappette')">
+        <div class="icon-box">📱</div>
+        <span>Creation sim swappette</span>
+      </div>
+      <div class="service-btn-card" onclick="ouvrirOption('Creation gestion des enfants/prive')">
+        <div class="icon-box">🛸</div>
+        <span>Creation gestion des enfants/prive</span>
+      </div>
+      <div class="service-btn-card" onclick="ouvrirOption('Creation gestion des enfants/agent')">
+        <div class="icon-box">🎮</div>
+        <span>Creation gestion des enfants/agent</span>
+      </div>
+      <div class="service-btn-card" onclick="ouvrirOption('Creation sim vodae')">
+        <div class="icon-box">💳</div>
+        <span>Creation sim vodae</span>
+      </div>
+      <div class="service-btn-card" onclick="ouvrirOption('Demande puk')">
+        <div class="icon-box">📞</div>
+        <span>Demande puk</span>
+      </div>
+      <div class="service-btn-card" onclick="ouvrirOption('Reset pin IRM')">
+        <div class="icon-box">🔑</div>
+        <span>Reset pin IRM</span>
+      </div>
+      <div class="service-btn-card" onclick="ouvrirOption('Deblocage pin mpesa')">
+        <div class="icon-box">🔓</div>
+        <span>Deblocage pin mpesa</span>
+      </div>
+      <div class="service-btn-card" onclick="ouvrirOption('Reset pin vodae')">
+        <div class="icon-box">🔒</div>
+        <span>Reset pin vodae</span>
+      </div>
+      <div class="service-btn-card" onclick="ouvrirOption('Reset pin gestion des enfants /prive')">
+        <div class="icon-box">🛡️</div>
+        <span>Reset pin gestion des enfants /prive</span>
+      </div>
+      <div class="service-btn-card" onclick="ouvrirOption('Reset pin gestion des enfants/agent')">
+        <div class="icon-box">👨‍👦</div>
+        <span>Reset pin gestion des enfants/agent</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. HISTORIQUE -->
+  <div id="sec-historique" class="section">
+    <h2>Historique de mes demandes</h2>
+    <input type="text" id="historyFilterInput" class="search-box" style="margin-top:10px;" placeholder="Filtrer par nom ou service..." onkeyup="filtrerHistorique(this.value)">
+    <div id="clientOrdersList" style="margin-top: 15px; color: var(--voda-muted);">Aucune demande effectuée pour le moment.</div>
+  </div>
+
+  <!-- 3. CHAT ISOLÉ -->
+  <div id="sec-chat" class="section">
+    <h2>Discussion Interne Sécurisée</h2>
+    <p style="font-size:0.75rem; color:var(--voda-muted); margin-bottom:10px;" id="chatSubtitle">Canal de communication isolé.</p>
+    
+    <div id="agentClientSelectorContainer" style="display:none; margin-bottom:10px;">
+      <label style="font-size:0.8rem; color:var(--voda-red);">Sélectionner un client (Mode Agent) :</label>
+      <select id="agentSelectClientTarget" onchange="changerClientActifChat(this.value)" style="width:100%; padding:8px; background:#222; border:1px solid var(--border); color:#fff; border-radius:6px;"></select>
+    </div>
+
+    <div class="card" style="margin-top:10px; height:340px; padding:12px; overflow-y:auto;" id="chatBox"></div>
+    <div style="display: flex; gap: 5px; margin-top: 8px;">
+      <textarea id="chatInput" placeholder="Écrire un message..." style="flex:1; height:60px; padding:10px; background:#222; border:1px solid var(--border); color:#fff; border-radius:6px; resize:none;"></textarea>
+      <button onclick="envoyerMessage()" style="width: 80px; height:60px; background:var(--voda-red); color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Envoyer</button>
+    </div>
+  </div>
+
+  <!-- 4. DASHBOARD AGENT -->
+  <div id="sec-agent" class="section">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <h2 style="color: var(--voda-red);">🛡️ Dashboard Agent & Stats</h2>
+    </div>
+
+    <div class="card" style="background:#181818; border:1px solid var(--voda-red);">
+      <h3 style="font-size:0.95rem; margin-bottom:10px; color:#fff;">📊 Statistiques des Revenus & Activités</h3>
+      <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; font-size:0.8rem;">
+        <div style="background:#222; padding:10px; border-radius:6px;">
+          <span style="color:var(--voda-muted); font-size:0.7rem;">JOUR (Aujourd'hui)</span>
+          <div id="statDay" style="font-weight:bold; color:var(--success); font-size:0.95rem;">0 FC</div>
+        </div>
+        <div style="background:#222; padding:10px; border-radius:6px;">
+          <span style="color:var(--voda-muted); font-size:0.7rem;">DOSSIERS TOTAL</span>
+          <div id="statTotalDossiers" style="font-weight:bold; color:var(--voda-red); font-size:0.95rem;">0</div>
+        </div>
+      </div>
+      
+      <!-- EXPORT REPORT BTNS -->
+      <div style="margin-top: 15px; display: flex; gap: 8px;">
+        <button onclick="copierRapportJour()" class="btn-sec" style="text-align:center; flex:1;">📋 Copier Rapport</button>
+        <a id="whatsappReportBtn" href="#" target="_blank" class="btn-whatsapp" style="flex:1;">📤 WhatsApp PDF</a>
+      </div>
+    </div>
+
+    <h3 style="margin: 15px 0 10px 0; font-size:1.1rem;">Commandes Reçues</h3>
+    <div id="agentOrdersList" style="margin-top: 5px; color: var(--voda-muted);">Aucune commande en attente.</div>
+  </div>
+</div>
+
+<!-- MODAL GUIDE D'UTILISATION -->
+<div id="modalGuide" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); padding:20px; z-index:400; overflow-y:auto;">
+  <div class="card" style="margin-top: 20px;">
+    <h3 style="color:var(--voda-red); margin-bottom:10px;">📖 Comment utiliser l'app</h3>
+    <div style="font-size:0.85rem; color:#ddd; line-height:1.5; display:flex; flex-direction:column; gap:8px;">
+      <p><strong>1. Sélection du Service :</strong> Parcourez ou recherchez le service Vodacom souhaité depuis l'accueil.</p>
+      <p><strong>2. Paiement Direct :</strong> Effectuez le paiement sur le numéro unique <strong>0811301919</strong> et joignez la capture d'écran correspondante.</p>
+      <p><strong>3. Soumission et Suivi :</strong> Remplissez les informations requises et validez. Suivez l'état d'avancement de votre dossier dans l'onglet <em>Historique</em>.</p>
+      <p><strong>4. Communication :</strong> Utilisez l'onglet <em>Chat</em> pour échanger directement et de manière sécurisée.</p>
+    </div>
+    <button onclick="fermerModalGuide()" class="btn-sec" style="margin-top:15px; text-align:center;">Fermer</button>
+  </div>
+</div>
+
+<!-- MODAL FORMULAIRE + PAIEMENT (0811301919) -->
+<div id="modalDemande" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); padding:20px; z-index:200; overflow-y:auto;">
+  <div class="card" style="margin-top: 20px;">
+    <h3 id="modalTitle" style="color: var(--voda-red);">Titre de l'option</h3>
+    <p id="modalPrice" style="color:#38bdf8; font-weight:bold; font-size:0.9rem; margin:8px 0;"></p>
+    
+    <div style="background:#251616; border:1px solid var(--voda-red); padding:12px; border-radius:8px; margin:10px 0;">
+      <h4 style="color:var(--voda-red); font-size:0.9rem; margin-bottom:4px;">💳 Instructions de Paiement</h4>
+      <p style="font-size:0.8rem; color:#ddd; line-height:1.4;">Veuillez effectuer le paiement sur le numéro dédié : <strong style="color:#38bdf8; font-size:0.95rem;">0811301919</strong> avant de valider.</p>
+      <label style="margin-top:8px;">Capture d'écran du paiement :</label>
+      <input type="file" accept="image/*" id="paymentProofInput" style="margin-bottom:6px;" onchange="apercuPreuvePaiement(this)">
+      <div id="paymentProofPreview"></div>
+    </div>
+
+    <div id="modalFields"></div>
+    <div id="modalButtonsExtra" style="margin-top:15px;"></div>
+    
+    <button onclick="soumettreDemande()" class="btn-success" style="margin-top:15px; margin-bottom:8px;">Envoyer</button>
+    <button onclick="fermerModal()" class="btn-sec" style="text-align:center;">Fermer</button>
+  </div>
+</div>
+
+<!-- MODAL PROFIL CLIENT -->
+<div id="modalProfile" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); padding:20px; z-index:400;">
+  <div class="card" style="margin-top: 40px;">
+    <h3>📝 Modifier mon Profil</h3>
+    <label>Nom complet :</label>
+    <input type="text" id="profileNameInput" placeholder="Ex: Byaombe Alembe">
+    <label>Numéro de téléphone :</label>
+    <input type="text" id="profilePhoneInput" placeholder="Ex: +243...">
+    <button onclick="sauvegarderProfile()" class="btn-success" style="margin-top: 15px; margin-bottom:8px;">Enregistrer</button>
+    <button onclick="fermerProfilModal()" class="btn-sec" style="text-align:center;">Fermer</button>
+  </div>
+</div>
+
+<!-- MODAL TRAITEMENT -->
+<div id="processingModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); z-index:9999; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
+    <div style="position:relative; display:flex; align-items:center; justify-content:center; margin-bottom:20px;">
+        <div class="spinner-ring" style="width:70px; height:70px; border:4px solid rgba(230,0,0,0.2); border-top-color:var(--voda-red); border-radius:50%;"></div>
+    </div>
+    <h3 style="color:white; font-size:1.1rem; margin-bottom:5px;">Traitement en cours...</h3>
+</div>
+
+<!-- MODAL IMAGE FULLSCREEN -->
+<div id="imageModal" onclick="fermerModalImageBg(event)">
+  <div class="image-viewer-card">
+    <img id="imgFullscreen" src="" alt="Aperçu image">
+    <div class="image-actions">
+      <a id="downloadImgBtn" href="" download="justificatif_vodacom.jpg" class="btn-dl">Télécharger</a>
+      <button onclick="fermerModalImage()" class="btn-close-img">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LOGIN AGENT -->
+<div id="modalAgentLogin" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); padding:20px; z-index:400;">
+  <div class="card" style="margin-top: 50px;">
+    <h3>🛡️ Accès Restreint (Agent)</h3>
+    <label>Code PIN Agent :</label>
+    <input type="password" id="agentSecretInput" maxlength="4" placeholder="Code secret agent">
+    <button onclick="verifierEtBasculerAgent()" class="btn-success" style="margin-top: 15px; margin-bottom:8px;">Valider l'accès</button>
+    <button onclick="fermerModalAgent()" class="btn-sec" style="text-align:center;">Annuler</button>
+  </div>
+</div>
+
+<!-- NAVIGATION BAS DE PAGE -->
+<nav style="position:fixed; bottom:0; left:0; right:0; background:#181818; border-top:1px solid var(--border); display:flex; justify-content:space-around; padding:10px 0; z-index:100;">
+  <button onclick="playClickSound(); naviguer('sec-services', this)" class="active" style="background:none; border:none; color:var(--voda-red); display:flex; flex-direction:column; align-items:center; cursor:pointer;">
+    <span style="font-size:1.2rem;">▦</span>
+    <span style="font-size:0.7rem;">Services</span>
+  </button>
+  <button onclick="playClickSound(); naviguer('sec-historique', this)" style="background:none; border:none; color:var(--voda-muted); display:flex; flex-direction:column; align-items:center; cursor:pointer;">
+    <span style="font-size:1.2rem;">👥</span>
+    <span style="font-size:0.7rem;">Historique</span>
+  </button>
+  <button onclick="playClickSound(); naviguer('sec-chat', this)" style="background:none; border:none; color:var(--voda-muted); display:flex; flex-direction:column; align-items:center; cursor:pointer; position:relative;">
+    <span style="font-size:1.2rem;">💬</span>
+    <span style="font-size:0.7rem;">Chat</span>
+    <span id="chatNavDot" style="display:none; position:absolute; top:2px; right:12px; width:8px; height:8px; background:var(--voda-red); border-radius:50%;"></span>
+  </button>
+  <button id="navAgentBtn" onclick="playClickSound(); naviguer('sec-agent', this)" style="display:none; background:none; border:none; color:var(--voda-red); flex-direction:column; align-items:center; cursor:pointer;">
+    <span style="font-size:1.2rem;">🛡️</span>
+    <span style="font-size:0.7rem;">Agent</span>
+  </button>
+</nav>
+
+<script>
+const optionsDetails = {
+  "Ouverture et migration + tic-tac": { price: "1000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Bouton Carte d'Électeur", "Bouton Capture"] },
+  "Swapp": { price: "2 000 FC", fields: [{name: "numero perdu", type: "text"}, {name: "5 numéro fréquemment appelé (1)", type: "text"}, {name: "solde disponible", type: "text"}, {name: "iccd", type: "text"}], buttons: ["Bouton Capture"] },
+  "Creation IRM + migration tic-tac": { price: "7 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Bouton Capture"] },
+  "Creation sim swappette": { price: "20 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Bouton Capture"] },
+  "Creation gestion des enfants/prive": { price: "20 000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero", type: "text"}], buttons: ["Bouton Capture"] },
+  "Creation gestion des enfants/agent": { price: "20 000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero agent", type: "text"}], buttons: ["Bouton Capture"] },
+  "Creation sim vodae": { price: "Gratuit", fields: [{name: "nom", type: "text"}, {name: "numero", type: "text"}], buttons: [] },
+  "Demande puk": { price: "Gratuit", fields: [{name: "iccd", type: "text"}], buttons: [] },
+  "Reset pin IRM": { price: "6 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Bouton Capture"] },
+  "Deblocage pin mpesa": { price: "5 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Bouton Capture"] },
+  "Reset pin vodae": { price: "3000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Bouton Capture"] },
+  "Reset pin gestion des enfants /prive": { price: "5000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero", type: "text"}], buttons: ["Bouton Capture"] },
+  "Reset pin gestion des enfants/agent": { price: "5000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero agent", type: "text"}], buttons: ["Bouton Capture"] }
+};
+
+let agentPinSecret = "9999";
+let currentRole = "CLIENT";
+let activeOptionName = "";
+let paymentProofImage = "";
+
+let userProfile = JSON.parse(localStorage.getItem('voda_user_profile')) || { name: "Byaombe Alembe", phone: "+243000000000" };
+let demandes = JSON.parse(localStorage.getItem('voda_dossiers_v100')) || [];
+
+let chatStore = JSON.parse(localStorage.getItem('voda_chat_store')) || {};
+let activeChatClientPhone = userProfile.phone;
+let unreadMessagesCount = 0;
+
+function playClickSound() {
+  try {
+    let ctx = new (window.AudioContext || window.webkitAudioContext)();
+    let osc = ctx.createOscillator();
+    let gain = ctx.createGain();
+    osc.frequency.setValueAtTime(580, ctx.currentTime);
+    gain.gain.setValueAtTime(0.04, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime + 0.08);
+  } catch(e) {}
+}
+
+window.onload = function() {
+  chargerProfileUI();
+  calculerStatsAgent();
+  afficherDemandesClient();
+  afficherDemandesAgent();
+  rafraichirChat();
+  verifierNotificationsNonLues();
+};
+
+function chargerProfileUI() {
+  document.getElementById('welcomeUserName').innerText = `Bonjour ${userProfile.name} ! 👋`;
+  document.getElementById('sidebarProfileName').innerText = userProfile.name;
+  document.getElementById('sidebarProfilePhone').innerText = userProfile.phone;
+}
+
+function ouvrirProfilModal() {
+  fermerSidebar();
+  document.getElementById('profileNameInput').value = userProfile.name;
+  document.getElementById('profilePhoneInput').value = userProfile.phone;
+  document.getElementById('modalProfile').style.display = "block";
+}
+function fermerProfilModal() { document.getElementById('modalProfile').style.display = "none"; }
+
+function ouvrirModalGuide() {
+  fermerSidebar();
+  document.getElementById('modalGuide').style.display = "block";
+}
+function fermerModalGuide() {
+  document.getElementById('modalGuide').style.display = "none";
+}
+
+function sauvegarderProfile() {
+  playClickSound();
+  const n = document.getElementById('profileNameInput').value.trim();
+  const p = document.getElementById('profilePhoneInput').value.trim();
+  if(!n || !p) return afficherToast("Veuillez remplir tous les champs !");
+  
+  userProfile = { name: n, phone: p };
+  localStorage.setItem('voda_user_profile', JSON.stringify(userProfile));
+  activeChatClientPhone = p;
+  chargerProfileUI();
+  fermerProfilModal();
+  afficherToast("Profil mis à jour avec succès !");
+}
+
+function ouvrirSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').style.display = 'block'; }
+function fermerSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').style.display = 'none'; }
+
+function naviguer(secId, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => {
+    b.style.color = "var(--voda-muted)";
+    b.classList.remove('active');
+  });
+  document.getElementById(secId).classList.add('active');
+  if(btn) { btn.classList.add('active'); btn.style.color = "var(--voda-red)"; }
+  fermerSidebar();
+  if(secId === 'sec-agent') { calculerStatsAgent(); }
+  if(secId === 'sec-chat') { 
+    rafraichirChat(); 
+    effacerNotifications();
+  }
+}
+
+function ouvrirModalAgent() {
+  fermerSidebar();
+  if (currentRole === "AGENT") {
+    currentRole = "CLIENT";
+    document.getElementById('roleToggle').textContent = "🔄 Mode : CLIENT";
+    document.getElementById('navAgentBtn').style.display = "none";
+    document.getElementById('agentClientSelectorContainer').style.display = "none";
+    naviguer('sec-services', document.querySelector('nav button'));
+    afficherToast("Basculement en mode client.");
+  } else {
+    document.getElementById('agentSecretInput').value = "";
+    document.getElementById('modalAgentLogin').style.display = "block";
+  }
+}
+function fermerModalAgent() { document.getElementById('modalAgentLogin').style.display = "none"; }
+function verifierEtBasculerAgent() {
+  playClickSound();
+  if (document.getElementById('agentSecretInput').value !== agentPinSecret) return afficherToast("Code PIN agent incorrect !");
+  currentRole = "AGENT";
+  document.getElementById('roleToggle').textContent = "🛡️ Mode : AGENT";
+  document.getElementById('navAgentBtn').style.display = "flex";
+  document.getElementById('agentClientSelectorContainer').style.display = "block";
+  fermerModalAgent();
+  peuplerSelectClientsAgent();
+  naviguer('sec-agent', document.getElementById('navAgentBtn'));
+  afficherToast("Mode Agent activé avec succès !");
+}
+
+function ouvrirOption(optionName) {
+  playClickSound();
+  activeOptionName = optionName;
+  paymentProofImage = "";
+  document.getElementById('paymentProofInput').value = "";
+  document.getElementById('paymentProofPreview').innerHTML = "";
+
+  const data = optionsDetails[optionName] || { price: "Inconnu", fields: [], buttons: [] };
+  document.getElementById('modalTitle').textContent = optionName;
+  document.getElementById('modalPrice').textContent = "Prix : " + data.price;
+  
+  const container = document.getElementById('modalFields');
+  container.innerHTML = "";
+  data.fields.forEach(f => {
+    container.innerHTML += `<label>${f.name} :</label><input type="${f.type}" class="custom-field" data-fieldname="${f.name}" placeholder="Entrer ${f.name}">`;
+  });
+
+  const btnContainer = document.getElementById('modalButtonsExtra');
+  btnContainer.innerHTML = "";
+  data.buttons.forEach((b, idx) => {
+    btnContainer.innerHTML += `<label>${b} :</label><input type="file" accept="image/*" class="custom-file-field" data-filelabel="${b}" id="file-input-${idx}" style="margin-bottom:8px;" onchange="apercuFichier(this, ${idx})">
+    <div id="preview-box-${idx}" style="margin-bottom:8px;"></div>`;
+  });
+
+  document.getElementById('modalDemande').style.display = "block";
+}
+function fermerModal() { document.getElementById('modalDemande').style.display = "none"; }
+
+function apercuPreuvePaiement(input) {
+  if (input.files && input.files[0]) {
+    let reader = new FileReader();
+    reader.onload = function(e) {
+      paymentProofImage = e.target.result;
+      document.getElementById('paymentProofPreview').innerHTML = `<img src="${e.target.result}" style="width:60px; height:60px; object-fit:cover; border-radius:6px; border:1px solid var(--voda-red); cursor:pointer;" onclick="ouvrirModalImage('${e.target.result}')">`;
+    }
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function apercuFichier(input, idx) {
+  if (input.files && input.files[0]) {
+    let reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById(`preview-box-${idx}`).innerHTML = `<img src="${e.target.result}" style="width:60px; height:60px; object-fit:cover; border-radius:6px; border:1px solid var(--voda-red); cursor:pointer;" onclick="ouvrirModalImage('${e.target.result}')">`;
+    }
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function ouvrirModalImage(src) {
+  document.getElementById('imgFullscreen').src = src;
+  document.getElementById('downloadImgBtn').href = src;
+  document.getElementById('imageModal').style.display = "flex";
+}
+function fermerModalImage() { document.getElementById('imageModal').style.display = "none"; }
+function fermerModalImageBg(event) { if(event.target.id === 'imageModal') fermerModalImage(); }
+
+function soumettreDemande() {
+  playClickSound();
+  if(!paymentProofImage) return afficherToast("Veuillez joindre la capture d'écran du paiement (0811301919) !");
+
+  const inputs = document.querySelectorAll('.custom-field');
+  let details = {};
+  let valid = true;
+  inputs.forEach(input => {
+    if(!input.value.trim()) valid = false;
+    details[input.getAttribute('data-fieldname')] = input.value;
+  });
+  if(!valid) return afficherToast("Veuillez remplir tous les champs obligatoires !");
+
+  let images = [paymentProofImage];
+  document.querySelectorAll('.custom-file-field').forEach((fileInput, idx) => {
+    let box = document.getElementById(`preview-box-${idx}`);
+    let imgTag = box.querySelector('img');
+    if(imgTag) images.push(imgTag.src);
+  });
+
+  fermerModal();
+  document.getElementById('processingModal').style.display = "flex";
+
+  setTimeout(() => {
+    let priceNum = 0;
+    let optPriceStr = optionsDetails[activeOptionName] ? optionsDetails[activeOptionName].price : "0";
+    let matchNum = optPriceStr.replace(/\D/g, '');
+    if(matchNum) priceNum = parseInt(matchNum);
+
+    let now = new Date();
+    demandes.push({
+      id: Date.now(),
+      clientPhone: userProfile.phone,
+      clientName: userProfile.name,
+      service: activeOptionName,
+      details: details,
+      images: images,
+      status: "En attente",
+      date: now.toLocaleDateString(),
+      rawDate: now.toISOString(),
+      amount: priceNum
+    });
+
+    localStorage.setItem('voda_dossiers_v100', JSON.stringify(demandes));
+    document.getElementById('processingModal').style.display = "none";
+
+    afficherToast("Demande envoyée avec succès !");
+    calculerStatsAgent();
+    afficherDemandesClient();
+    afficherDemandesAgent();
+  }, 2000);
+}
+
+// CHAT ISOLATION & NOTIFICATIONS
+function getActiveChatMessages() {
+  if(!chatStore[activeChatClientPhone]) {
+    chatStore[activeChatClientPhone] = [{ sender: "Agent", text: `Bonjour ${userProfile.name} ! Bienvenue sur Vodacom Agent Pro.` }];
+  }
+  return chatStore[activeChatClientPhone];
+}
+
+function rafraichirChat() {
+  const box = document.getElementById('chatBox');
+  const msgs = getActiveChatMessages();
+  
+  box.innerHTML = msgs.map((m, idx) => `
+    <div style="margin-bottom:10px; font-size:0.9rem; border-bottom:1px dashed #222; padding-bottom:5px;">
+      <strong>${m.sender}:</strong> ${m.text}
+      ${currentRole === 'AGENT' && m.sender !== 'Agent' ? `<button onclick="repondreMessageAgent(${idx})" style="float:right; background:var(--voda-red); color:#fff; border:none; padding:2px 6px; border-radius:4px; font-size:0.7rem; cursor:pointer;">Répondre</button>` : ''}
+    </div>
+  `).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+function envoyerMessage() {
+  playClickSound();
+  const input = document.getElementById('chatInput');
+  if(!input.value.trim()) return;
+
+  let msgs = getActiveChatMessages();
+  let senderName = currentRole === 'AGENT' ? 'Agent' : userProfile.name;
+  
+  msgs.push({ sender: senderName, text: input.value });
+  chatStore[activeChatClientPhone] = msgs;
+  localStorage.setItem('voda_chat_store', JSON.stringify(chatStore));
+  
+  input.value = "";
+  rafraichirChat();
+  
+  // Simuler alerte de notification pour le destinataire
+  declencherNotificationVisuelle();
+}
+
+function declencherNotificationVisuelle() {
+  document.getElementById('notifDot').style.display = 'block';
+  document.getElementById('chatNavDot').style.display = 'block';
+}
+
+function verifierNotificationsNonLues() {
+  // Optionnel: gère l'état initial des notifications
+}
+
+function effacerNotifications() {
+  document.getElementById('notifDot').style.display = 'none';
+  document.getElementById('chatNavDot').style.display = 'none';
+}
+
+function repondreMessageAgent(idx) {
+  let input = document.getElementById('chatInput');
+  input.value = `@Client: `;
+  input.focus();
+}
+
+function peuplerSelectClientsAgent() {
+  const sel = document.getElementById('agentSelectClientTarget');
+  let clientsMap = {};
+  demandes.forEach(d => {
+    if(d.clientPhone) clientsMap[d.clientPhone] = d.clientName || d.clientPhone;
+  });
+  clientsMap[userProfile.phone] = userProfile.name;
+
+  sel.innerHTML = Object.entries(clientsMap).map(([phone, name]) => `<option value="${phone}">${name} (${phone})</option>`).join('');
+  activeChatClientPhone = document.getElementById('agentSelectClientTarget').value || userProfile.phone;
+}
+
+function changerClientActifChat(phone) {
+  activeChatClientPhone = phone;
+  rafraichirChat();
+}
+
+function calculerStatsAgent() {
+  let totalJour = demandes.reduce((s, d) => s + Number(d.amount || 0), 0);
+  document.getElementById('statDay').innerText = totalJour.toLocaleString() + ' FC';
+  document.getElementById('statTotalDossiers').innerText = demandes.length;
+  
+  // Mettre à jour le lien WhatsApp du rapport
+  let texteRapport = `*RAPPORT VODACOM AGENT PRO*%0A- Total Dossiers : ${demandes.length}%0A- Revenus Total : ${totalJour.toLocaleString()} FC%0A- Date : ${new Date().toLocaleDateString()}`;
+  document.getElementById('whatsappReportBtn').href = `https://wa.me/?text=${texteRapport}`;
+}
+
+function copierRapportJour() {
+  playClickSound();
+  let totalJour = demandes.reduce((s, d) => s + Number(d.amount || 0), 0);
+  let texteRapport = `RAPPORT VODACOM AGENT PRO\n- Total Dossiers : ${demandes.length}\n- Revenus Total : ${totalJour.toLocaleString()} FC\n- Date : ${new Date().toLocaleDateString()}`;
+  navigator.clipboard.writeText(texteRapport);
+  afficherToast("Rapport copié dans le presse-papier !");
+}
+
+function afficherDemandesClient(filterQuery = "") {
+  const list = document.getElementById('clientOrdersList');
+  let myDossiers = demandes.filter(d => d.clientPhone === userProfile.phone);
+  if(myDossiers.length === 0) {
+    list.innerHTML = `<div style="color:var(--voda-muted);">Aucune demande effectuée pour le moment.</div>`;
+    return;
+  }
+  list.innerHTML = myDossiers.slice().reverse().map(d => `
+    <div class="card" style="margin-bottom:10px;">
+      <h4 style="color:var(--voda-red);">${d.service}</h4>
+      <p style="font-size:0.8rem; color:var(--voda-muted);">Date : ${d.date}</p>
+      <div style="font-size:0.85rem; margin-top:5px;">
+        ${Object.entries(d.details).map(([k, v]) => `<div><strong>${k} :</strong> ${v}</div>`).join('')}
+      </div>
+      <p style="font-size:0.85rem; margin-top:8px;">Statut : <strong style="color:var(--warning);">${d.status}</strong></p>
+    </div>
+  `).join('');
+}
+
+function filtrerHistorique(val) { afficherDemandesClient(val); }
+
+function afficherDemandesAgent() {
+  const list = document.getElementById('agentOrdersList');
+  if(demandes.length === 0) {
+    list.innerHTML = `<div style="color:var(--voda-muted);">Aucune commande en attente.</div>`;
+    return;
+  }
+  list.innerHTML = demandes.slice().reverse().map(d => `
+    <div class="card" style="margin-bottom:12px;">
+      <h4 style="color:var(--voda-red);">${d.service} (Client : ${d.clientName || 'Inconnu'})</h4>
+      <div style="font-size:0.85rem; margin:5px 0;">
+        ${Object.entries(d.details).map(([k, v]) => `<div><strong>${k} :</strong> ${v}</div>`).join('')}
+      </div>
+      ${d.images && d.images.length > 0 ? `
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          ${d.images.map(img => `<img src="${img}" style="width:45px; height:45px; object-fit:cover; border-radius:4px; border:1px solid var(--voda-red); cursor:pointer;" onclick="ouvrirModalImage('${img}')">`).join('')}
+        </div>
+      ` : ''}
+      <p style="font-size:0.85rem; margin-top:8px;">Statut : <strong style="color:var(--warning);">${d.status}</strong></p>
+      ${d.status === 'En attente' ? `<button onclick="validerCommande(${d.id})" class="btn-success" style="padding:8px 12px; font-size:0.8rem; margin-top:10px;">Valider la commande</button>` : ''}
+    </div>
+  `).join('');
+}
+
+function validerCommande(id) {
+  playClickSound();
+  const cmd = demandes.find(d => d.id === id);
+  if(cmd) {
+    cmd.status = "Validé ✅";
+    localStorage.setItem('voda_dossiers_v100', JSON.stringify(demandes));
+    afficherToast("Commande validée avec succès !");
+    calculerStatsAgent();
+    afficherDemandesClient();
+    afficherDemandesAgent();
+  }
+}
+
+function filtrerServices(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('.service-btn-card').forEach(card => {
+    card.style.display = card.querySelector('span').textContent.toLowerCase().includes(q) ? "flex" : "none";
+  });
+}
+
+function afficherToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 3000);
+}
+</script>
+</body>
+</html>
+
