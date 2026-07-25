@@ -156,7 +156,7 @@ display: flex; gap: 10px; width: 100%;
   
   <button onclick="ouvrirProfilModal()" class="btn-sec">📝 Modifier mon Profil</button>
   <button onclick="ouvrirModalGuide()" class="btn-sec">📖 Comment utiliser l'app</button>
-  <button onclick="ouvrirModalAgent()" class="btn-sec" id="roleToggle">🔄 Mode : CLIENT</button>
+  <button onclick="gererClicBoutonAgent()" class="btn-sec" id="roleToggle">🔄 Mode : CLIENT</button>
   <button onclick="verrouillerApp()" class="btn-danger">🔒 Verrouiller l'application</button>
 </div>
 
@@ -408,8 +408,7 @@ display: flex; gap: 10px; width: 100%;
 </nav>
 
 <script>
-// CONFIGURATION FIREBASE (Bure / Wingu)
-// Weka maelezo yako ya Firebase hapa chini ili vifaa viweze kuwasiliana mtandaoni
+// CONFIGURATION FIREBASE
 const firebaseConfig = {
   apiKey: "YOUR_FIREBASE_API_KEY",
   authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
@@ -472,7 +471,6 @@ window.onload = function() {
 };
 
 function initialiserListenersFirebase() {
-  // Kusikiliza maombi (dossiers) kupitia Firebase Realtime Database
   db.ref('voda_dossiers').on('value', (snapshot) => {
     const data = snapshot.val();
     demandes = [];
@@ -489,7 +487,6 @@ function initialiserListenersFirebase() {
     }
   });
 
-  // Kusikiliza ujumbe wa chat kupitia Firebase Realtime Database
   db.ref('voda_chats').on('value', (snapshot) => {
     const data = snapshot.val();
     chatStore = data || {};
@@ -557,7 +554,7 @@ function naviguer(secId, btn) {
   }
 }
 
-function ouvrirModalAgent() {
+function gererClicBoutonAgent() {
   fermerSidebar();
   if (currentRole === "AGENT") {
     currentRole = "CLIENT";
@@ -571,7 +568,9 @@ function ouvrirModalAgent() {
     document.getElementById('modalAgentLogin').style.display = "block";
   }
 }
+
 function fermerModalAgent() { document.getElementById('modalAgentLogin').style.display = "none"; }
+
 function verifierEtBasculerAgent() {
   playClickSound();
   if (document.getElementById('agentSecretInput').value !== agentPinSecret) return afficherToast("Code PIN agent incorrect !");
@@ -686,7 +685,6 @@ function soumettreDemande() {
       amount: priceNum
     };
 
-    // Kutuma kwenye Firebase Realtime Database badala ya localStorage pekee
     db.ref('voda_dossiers/' + dossierId).set(nouvelleDemande, (error) => {
       document.getElementById('processingModal').style.display = "none";
       if (error) {
@@ -732,7 +730,6 @@ function envoyerMessage() {
   
   msgs.push({ sender: senderName, text: input.value });
   
-  // Kutuma ujumbe kwenye Firebase Realtime Database
   db.ref('voda_chats/' + sanitizedPhone).set(msgs, (error) => {
     if(!error) {
       input.value = "";
@@ -844,7 +841,6 @@ function validerCommande(id) {
   const cmd = demandes.find(d => d.id === id);
   if(cmd) {
     cmd.status = "Validé ✅";
-    // Kusasisha hali ya agizo moja kwa moja kwenye Firebase Realtime Database
     db.ref('voda_dossiers/' + id).update({ status: "Validé ✅" }, (error) => {
       if(!error) {
         afficherToast("Commande validée avec succès !");
@@ -868,4 +864,3 @@ function afficherToast(msg) {
 </script>
 </body>
 </html>
-
