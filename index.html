@@ -7,6 +7,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Firebase App (Core) SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<!-- Firebase Realtime Database SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <style>
 :root {
 --voda-red: #e60000;
@@ -404,6 +408,24 @@ display: flex; gap: 10px; width: 100%;
 </nav>
 
 <script>
+// CONFIGURATION FIREBASE (Bure / Wingu)
+// Weka maelezo yako ya Firebase hapa chini ili vifaa viweze kuwasiliana mtandaoni
+const firebaseConfig = {
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
+  databaseURL: "YOUR_FIREBASE_DATABASE_URL",
+  projectId: "YOUR_FIREBASE_PROJECT_ID",
+  storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
+  appId: "YOUR_FIREBASE_APP_ID"
+};
+
+// Initialize Firebase
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.database();
+
 const optionsDetails = {
   "Ouverture et migration + tic-tac": { price: "1000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Bouton Carte d'Électeur", "Bouton Capture"] },
   "Swapp": { price: "2 000 FC", fields: [{name: "numero perdu", type: "text"}, {name: "5 numéro fréquemment appelé (1)", type: "text"}, {name: "solde disponible", type: "text"}, {name: "iccd", type: "text"}], buttons: ["Bouton Capture"] },
@@ -426,9 +448,8 @@ let activeOptionName = "";
 let paymentProofImage = "";
 
 let userProfile = JSON.parse(localStorage.getItem('voda_user_profile')) || { name: "Byaombe Alembe", phone: "+243000000000" };
-let demandes = JSON.parse(localStorage.getItem('voda_dossiers_v100')) || [];
-
-let chatStore = JSON.parse(localStorage.getItem('voda_chat_store')) || {};
+let demandes = [];
+let chatStore = {};
 let activeChatClientPhone = userProfile.phone;
 let unreadMessagesCount = 0;
 
@@ -447,12 +468,34 @@ function playClickSound() {
 
 window.onload = function() {
   chargerProfileUI();
-  calculerStatsAgent();
-  afficherDemandesClient();
-  afficherDemandesAgent();
-  rafraichirChat();
-  verifierNotificationsNonLues();
+  initialiserListenersFirebase();
 };
+
+function initialiserListenersFirebase() {
+  // Kusikiliza maombi (dossiers) kupitia Firebase Realtime Database
+  db.ref('voda_dossiers').on('value', (snapshot) => {
+    const data = snapshot.val();
+    demandes = [];
+    if (data) {
+      Object.keys(data).forEach(key => {
+        demandes.push(data[key]);
+      });
+    }
+    calculerStatsAgent();
+    afficherDemandesClient();
+    afficherDemandesAgent();
+    if (currentRole === 'AGENT') {
+      peuplerSelectClientsAgent();
+    }
+  });
+
+  // Kusikiliza ujumbe wa chat kupitia Firebase Realtime Database
+  db.ref('voda_chats').on('value', (snapshot) => {
+    const data = snapshot.val();
+    chatStore = data || {};
+    rafraichirChat();
+  });
+}
 
 function chargerProfileUI() {
   document.getElementById('welcomeUserName').innerText = `Bonjour ${userProfile.name} ! 👋`;
@@ -629,8 +672,9 @@ function soumettreDemande() {
     if(matchNum) priceNum = parseInt(matchNum);
 
     let now = new Date();
-    demandes.push({
-      id: Date.now(),
+    let dossierId = Date.now();
+    let nouvelleDemande = {
+      id: dossierId,
       clientPhone: userProfile.phone,
       clientName: userProfile.name,
       service: activeOptionName,
@@ -640,28 +684,32 @@ function soumettreDemande() {
       date: now.toLocaleDateString(),
       rawDate: now.toISOString(),
       amount: priceNum
+    };
+
+    // Kutuma kwenye Firebase Realtime Database badala ya localStorage pekee
+    db.ref('voda_dossiers/' + dossierId).set(nouvelleDemande, (error) => {
+      document.getElementById('processingModal').style.display = "none";
+      if (error) {
+        afficherToast("Imeshindwa kutuma. Angalia mtandao wako!");
+      } else {
+        afficherToast("Demande envoyée avec succès !");
+      }
     });
-
-    localStorage.setItem('voda_dossiers_v100', JSON.stringify(demandes));
-    document.getElementById('processingModal').style.display = "none";
-
-    afficherToast("Demande envoyée avec succès !");
-    calculerStatsAgent();
-    afficherDemandesClient();
-    afficherDemandesAgent();
   }, 1000);
 }
 
 // CHAT ISOLATION & NOTIFICATIONS
 function getActiveChatMessages() {
-  if(!chatStore[activeChatClientPhone]) {
-    chatStore[activeChatClientPhone] = [{ sender: "Agent", text: `Bonjour ${userProfile.name} ! Bienvenue sur Vodacom Agent Pro.` }];
+  let sanitizedPhone = activeChatClientPhone.replace(/[.#$\/\[\]]/g, '_');
+  if(!chatStore[sanitizedPhone]) {
+    return [{ sender: "Agent", text: `Bonjour ${userProfile.name} ! Bienvenue sur Vodacom Agent Pro.` }];
   }
-  return chatStore[activeChatClientPhone];
+  return chatStore[sanitizedPhone];
 }
 
 function rafraichirChat() {
   const box = document.getElementById('chatBox');
+  if(!box) return;
   const msgs = getActiveChatMessages();
   
   box.innerHTML = msgs.map((m, idx) => `
@@ -678,16 +726,19 @@ function envoyerMessage() {
   const input = document.getElementById('chatInput');
   if(!input.value.trim()) return;
 
-  let msgs = getActiveChatMessages();
+  let sanitizedPhone = activeChatClientPhone.replace(/[.#$\/\[\]]/g, '_');
+  let msgs = [...getActiveChatMessages()];
   let senderName = currentRole === 'AGENT' ? 'Agent' : userProfile.name;
   
   msgs.push({ sender: senderName, text: input.value });
-  chatStore[activeChatClientPhone] = msgs;
-  localStorage.setItem('voda_chat_store', JSON.stringify(chatStore));
   
-  input.value = "";
-  rafraichirChat();
-  declencherNotificationVisuelle();
+  // Kutuma ujumbe kwenye Firebase Realtime Database
+  db.ref('voda_chats/' + sanitizedPhone).set(msgs, (error) => {
+    if(!error) {
+      input.value = "";
+      declencherNotificationVisuelle();
+    }
+  });
 }
 
 function declencherNotificationVisuelle() {
@@ -710,14 +761,14 @@ function repondreMessageAgent(idx) {
 
 function peuplerSelectClientsAgent() {
   const sel = document.getElementById('agentSelectClientTarget');
+  if(!sel) return;
   let clientsMap = {};
   demandes.forEach(d => {
     if(d.clientPhone) clientsMap[d.clientPhone] = d.clientName || d.clientPhone;
   });
   clientsMap[userProfile.phone] = userProfile.name;
 
-  sel.innerHTML = Object.entries(clientsMap).map(([phone, name]) => `<option value="${phone}">${name} (${phone})</option>`).join('');
-  activeChatClientPhone = document.getElementById('agentSelectClientTarget').value || userProfile.phone;
+  sel.innerHTML = Object.entries(clientsMap).map(([phone, name]) => `<option value="${phone}" ${phone === activeChatClientPhone ? 'selected' : ''}>${name} (${phone})</option>`).join('');
 }
 
 function changerClientActifChat(phone) {
@@ -744,6 +795,7 @@ function copierRapportJour() {
 
 function afficherDemandesClient(filterQuery = "") {
   const list = document.getElementById('clientOrdersList');
+  if(!list) return;
   let myDossiers = demandes.filter(d => d.clientPhone === userProfile.phone);
   if(myDossiers.length === 0) {
     list.innerHTML = `<div style="color:var(--voda-muted);">Aucune demande effectuée pour le moment.</div>`;
@@ -765,6 +817,7 @@ function filtrerHistorique(val) { afficherDemandesClient(val); }
 
 function afficherDemandesAgent() {
   const list = document.getElementById('agentOrdersList');
+  if(!list) return;
   if(demandes.length === 0) {
     list.innerHTML = `<div style="color:var(--voda-muted);">Aucune commande en attente.</div>`;
     return;
@@ -791,11 +844,12 @@ function validerCommande(id) {
   const cmd = demandes.find(d => d.id === id);
   if(cmd) {
     cmd.status = "Validé ✅";
-    localStorage.setItem('voda_dossiers_v100', JSON.stringify(demandes));
-    afficherToast("Commande validée avec succès !");
-    calculerStatsAgent();
-    afficherDemandesClient();
-    afficherDemandesAgent();
+    // Kusasisha hali ya agizo moja kwa moja kwenye Firebase Realtime Database
+    db.ref('voda_dossiers/' + id).update({ status: "Validé ✅" }, (error) => {
+      if(!error) {
+        afficherToast("Commande validée avec succès !");
+      }
+    });
   }
 }
 
@@ -814,3 +868,4 @@ function afficherToast(msg) {
 </script>
 </body>
 </html>
+
