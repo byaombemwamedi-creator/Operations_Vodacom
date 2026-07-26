@@ -270,18 +270,18 @@ display: flex; gap: 10px; width: 100%;
     </div>
 
     <div class="card" style="margin-top:10px; height:340px; padding:12px; overflow-y:auto;" id="chatBox"></div>
+    
+    <div id="chatActionButtons" style="display: flex; justify-content: space-between; gap: 8px; margin: 8px 0;">
+      <button onclick="futaMazungumzoPro()" style="flex: 1; background: #e74c3c; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">Effacer</button>
+      <button onclick="hifadhiBackupChatPro()" style="flex: 1; background: #27ae60; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">Backup</button>
+      <button onclick="rejeshaBackupChatPro()" style="flex: 1; background: #2980b9; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">Restaurer</button>
+    </div>
+
     <div style="display: flex; gap: 5px; margin-top: 8px;">
       <textarea id="chatInput" placeholder="Écrire un message..." style="flex:1; height:60px; padding:10px; background:#222; border:1px solid var(--border); color:#fff; border-radius:6px; resize:none;"></textarea>
       <button onclick="envoyerMessage()" style="width: 80px; height:60px; background:var(--voda-red); color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Envoyer</button>
     </div>
   </div>
-  <!-- Weka hapa kwenye ukurasa wa Chat -->
-<div id="chatActionButtons" style="display: flex; justify-content: space-between; gap: 8px; padding: 10px 15px; background: rgba(20, 20, 20, 0.9); border-bottom: 1px solid #333;">
-  <button onclick="futaMazungumzoPro()" style="flex: 1; background: #e74c3c; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">Effacer</button>
-  <button onclick="hifadhiBackupChatPro()" style="flex: 1; background: #27ae60; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">Backup</button>
-  <button onclick="rejeshaBackupChatPro()" style="flex: 1; background: #2980b9; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">Restaurer</button>
-</div>
-
 
   <!-- 4. DASHBOARD AGENT -->
   <div id="sec-agent" class="section">
@@ -392,6 +392,7 @@ display: flex; gap: 10px; width: 100%;
     <button onclick="fermerModalAgent()" class="btn-sec" style="text-align:center;">Annuler</button>
   </div>
 </div>
+
 <!-- NAVIGATION BAS DE PAGE -->
 <nav style="position:fixed; bottom:0; left:0; right:0; background:#181818; border-top:1px solid var(--border); display:flex; justify-content:space-around; padding:10px 0; z-index:100;">
   <button onclick="playClickSound(); naviguer('sec-services', this)" class="active" style="background:none; border:none; color:var(--voda-red); display:flex; flex-direction:column; align-items:center; cursor:pointer;">
@@ -414,7 +415,6 @@ display: flex; gap: 10px; width: 100%;
 </nav>
 
 <script>
-// USUMBUFU ULITATULIWA: Weka URL halisi ya Firebase hapa chini
 const firebaseConfig = {
   apiKey: "AIzaSyD-EXAMPLE-API-KEY",
   authDomain: "byaomobilesolutions.firebaseapp.com",
@@ -425,12 +425,10 @@ const firebaseConfig = {
   appId: "1:1234567890:web:abcdef"
 };
 
-// Initialize Firebase
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
-
 
 const optionsDetails = {
   "Ouverture et migration + tic-tac": { price: "1000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'Électeur"] },
@@ -448,7 +446,6 @@ const optionsDetails = {
   "Reset pin gestion des enfants/agent": { price: "5000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero agent", type: "text"}], buttons: ["carte d'électeur"] }
 };
 
-// Vigezo vya kimataifa vimewekwa sahihi hapa mwanzo kabisa
 let agentPinSecret = "9999";
 let currentRole = "CLIENT";
 let activeOptionName = "";
@@ -458,7 +455,6 @@ let userProfile = JSON.parse(localStorage.getItem('voda_user_profile')) || { nam
 let demandes = [];
 let chatStore = {};
 let activeChatClientPhone = userProfile.phone;
-let unreadMessagesCount = 0;
 
 function playClickSound() {
   try {
@@ -631,7 +627,6 @@ function apercuPreuvePaiement(input) {
   }
 }
 
-
 function apercuFichier(input, idx) {
   if (input.files && input.files[0]) {
     let reader = new FileReader();
@@ -640,6 +635,7 @@ function apercuFichier(input, idx) {
     }
     reader.readAsDataURL(input.files[0]);
   }
+}
 
 function ouvrirModalImage(src) {
   document.getElementById('imgFullscreen').src = src;
@@ -649,8 +645,6 @@ function ouvrirModalImage(src) {
 function fermerModalImage() { document.getElementById('imageModal').style.display = "none"; }
 function fermerModalImageBg(event) { if(event.target.id === 'imageModal') fermerModalImage(); }
 
-
-// CHAT ISOLATION & NOTIFICATIONS
 function getActiveChatMessages() {
   let sanitizedPhone = activeChatClientPhone.replace(/[.#$\/\[\]]/g, '_');
   if(!chatStore[sanitizedPhone]) {
@@ -812,14 +806,15 @@ function afficherToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.style.display = 'block';
   setTimeout(() => { t.style.display = 'none'; }, 3000);
-}function soumettreDemande() {
-    playClickSound();
+}
+
+function soumettreDemande() {
+  playClickSound();
   
-  // Angalia kama bei ya huduma hii ni "Gratuit"
-  let optPriceStr = optionsDetails[activeOptionName] ? optionsDetails[activeOptionName].prix : "";
+  let optPriceObj = optionsDetails[activeOptionName] ? optionsDetails[activeOptionName] : {};
+  let optPriceStr = optPriceObj.price || "";
   let isGratuit = optPriceStr.toLowerCase().includes("gratuit");
 
-  // Kama SIYO bure na hakuna picha ya malipo, ndipo isimame
   if (!isGratuit && !paymentProofImage) {
       return afficherToast("Veuillez joindre la capture de paiement svp !");
   }
@@ -833,10 +828,12 @@ function afficherToast(msg) {
   });
   if(!valid) return afficherToast("Veuillez remplir tous les champs obligatoires !");
 
-  let images = [paymentProofImage];
+  let images = [];
+  if (paymentProofImage) images.push(paymentProofImage);
+  
   document.querySelectorAll('.custom-file-field').forEach((fileInput, idx) => {
     let box = document.getElementById(`preview-box-${idx}`);
-    let imgTag = box.querySelector('img');
+    let imgTag = box ? box.querySelector('img') : null;
     if(imgTag) images.push(imgTag.src);
   });
 
@@ -845,7 +842,6 @@ function afficherToast(msg) {
 
   setTimeout(() => {
     let priceNum = 0;
-    let optPriceStr = optionsDetails[activeOptionName] ? optionsDetails[activeOptionName].price : "0";
     let matchNum = optPriceStr.replace(/\D/g, '');
     if(matchNum) priceNum = parseInt(matchNum);
 
@@ -870,112 +866,60 @@ function afficherToast(msg) {
         afficherToast("Imeshindwa kutuma. Angalia mtandao wako!");
       } else {
         afficherToast("Demande envoyée avec succès !");
-    // Weka hapa ili ujumbe wa kiotomatiki utoke kwa mteja mara moja
-    tonaJibuLaKiotomatikiKwaMteja(userProfile.phone, activeOptionName);
-    
-    fermerModal();
-});
-
+        tonaJibuLaKiotomatikiKwaMteja(userProfile.phone, activeOptionName);
       }
     });
   }, 1000);
 }
 
-  // 1. MFUMO WA MAJIBU YA KIOTOMATIKI KWA KIFARANSA (Inatuma ujumbe kwa mteja)
 function tonaJibuLaKiotomatikiKwaMteja(nambariYaMteja, jinaLaHuduma) {
   if (!db) return;
+  let sanitizedPhone = nambariYaMteja.replace(/[.#$\/\[\]]/g, '_');
   
-  const ujumbeAuto = `Bonjour ! Votre demande pour "${jinaLaHuduma || 'cette opération'}" a bien été reçue. Un agent qualifié va la traiter dans un instant. Merci d'avoir choisi Vodacom Pro comme solution à vos besoins. Nous vous remercions pour votre confiance !`;
+  const ujumbeAuto = {
+    sender: "Agent",
+    text: `Bonjour ! Votre demande pour "${jinaLaHuduma || 'cette opération'}" a bien été reçue. Un agent qualifié va la traiter dans un instant. Merci d'avoir choisi Vodacom Pro comme solution à vos besoins. Nous vous remercions pour votre confiance !`
+  };
 
-  db.ref('chats/' + nambariYaMteja).push().set({
-    mtumaji: "Agent",
-    ujumbe: ujumbeAuto,
-    wakati: Date.now()
+  let currentMsgs = chatStore[sanitizedPhone] || [];
+  let updatedMsgs = [...currentMsgs, ujumbeAuto];
+
+  db.ref('voda_chats/' + sanitizedPhone).set(updatedMsgs);
+}
+
+function futaMazungumzoPro() {
+  let sanitizedPhone = activeChatClientPhone.replace(/[.#$\/\[\]]/g, '_');
+  db.ref('voda_chats/' + sanitizedPhone).remove().then(() => {
+    chatStore[sanitizedPhone] = [];
+    rafraichirChat();
+    afficherToast("Mazungumzo yamefutwa");
   });
 }
 
-// 2. KUFUTA MAZUNGUMZO
-function futaMazungumzoPro() {
-  const kiboksiChaChat = document.getElementById('chatMessagesBox');
-  if (kiboksiChaChat) kiboksiChaChat.innerHTML = "";
-  if (typeof chatStore !== 'undefined') chatStore = {};
-  localStorage.removeItem('chatStore');
-  onyeshaToast("Mazungumzo yamefutwa");
-}
-
-// 3. KUHIFADHI BACKUP
 function hifadhiBackupChatPro() {
   try {
-    const dataYaKuhifadhi = JSON.stringify(typeof chatStore !== 'undefined' ? chatStore : {});
+    const dataYaKuhifadhi = JSON.stringify(chatStore || {});
     localStorage.setItem('chat_backup_byao', dataYaKuhifadhi);
-    onyeshaToast("Backup imehifadhiwa kikamilifu");
+    afficherToast("Backup imehifadhiwa kikamilifu");
   } catch (e) {
-    onyeshaToast("Imeshindwa kuhifadhi backup");
+    afficherToast("Imeshindwa kuhifadhi backup");
   }
 }
 
-// 4. KUREJESHA BACKUP
 function rejeshaBackupChatPro() {
   const backupData = localStorage.getItem('chat_backup_byao');
   if (backupData) {
     try {
       chatStore = JSON.parse(backupData);
-      onyeshaToast("Mazungumzo yamerejeshwa");
+      rafraichirChat();
+      afficherToast("Mazungumzo yamerejeshwa");
     } catch (e) {
-      onyeshaToast("Hitilafu katika faili la backup");
+      afficherToast("Hitilafu katika faili la backup");
     }
   } else {
-    onyeshaToast("Hakuna backup iliyopatikana");
+    afficherToast("Hakuna backup iliyopatikana");
   }
 }
-
-// 5. ONYO DOGO LA KISASA (Toast)
-function onyeshaToast(ujumbe) {
-  let toastDiv = document.getElementById('byaoToastNotification');
-  if (!toastDiv) {
-    toastDiv = document.createElement('div');
-    toastDiv.id = 'byaoToastNotification';
-    toastDiv.style.cssText = "position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); background: #222; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12px; z-index: 9999; box-shadow: 0 4px 10px rgba(0,0,0,0.5); transition: opacity 0.3s ease;";
-    document.body.appendChild(toastDiv);
-  }
-  toastDiv.innerText = ujumbe;
-  toastDiv.style.opacity = "1";
-  setTimeout(() => {
-    toastDiv.style.opacity = "0";
-  }, 2000);
-}
-
- // 2. KITUFE CHA KUFUTA MAZUNGUMZO (Effacer)
-function futaMazungumzo() {
-  if (confirm("Je, una uhakika unataka kufuta mazungumzo haya?")) {
-    // Futa kwenye eneo la kuonyesha (UI) na kama unataka kufuta Firebase weka rejea yake hapa
-    const chatContainer = document.getElementById('chatMessagesBox'); // Badilisha jina hili kuwa ID ya kiboksi chako cha chat
-    if (chatContainer) chatContainer.innerHTML = "";
-    localStorage.removeItem('chatStore');
-    alert("Mazungumzo yamefutwa kikamilifu.");
-  }
-}
-
-// 3. KITUFE CHA KUHIFADHI (Backup)
-function hifadhiBackupChat() {
-  const dataYaKuhifadhi = JSON.stringify(chatStore || {});
-  localStorage.setItem('chat_backup_byao', dataYaKuhifadhi);
-  alert("Backup imehifadhiwa kwenye simu yako kwa mafanikio!");
-}
-
-// 4. KITUFE CHA KUREJESHA (Restaurer)
-function rejeshaBackupChat() {
-  const backupData = localStorage.getItem('chat_backup_byao');
-  if (backupData) {
-    chatStore = JSON.parse(backupData);
-    alert("Mazungumzo yamerejeshwa (Restaurer) kikamilifu!");
-    // Hapa unaweza kuita kazi yako ya kuchora upya chat kwenye skrini (kama ipo)
-  } else {
-    alert("Hakuna backup iliyopatikana kwenye simu hii.");
-  }
-}
-
-
 </script>
 </body>
 </html>
