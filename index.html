@@ -642,60 +642,6 @@ function ouvrirModalImage(src) {
 function fermerModalImage() { document.getElementById('imageModal').style.display = "none"; }
 function fermerModalImageBg(event) { if(event.target.id === 'imageModal') fermerModalImage(); }
 
-function soumettreDemande() {
-  playClickSound();
-  if(!paymentProofImage) return afficherToast("Veuillez joindre la capture d'écran du paiement (0811301919) !");
-
-  const inputs = document.querySelectorAll('.custom-field');
-  let details = {};
-  let valid = true;
-  inputs.forEach(input => {
-    if(!input.value.trim()) valid = false;
-    details[input.getAttribute('data-fieldname')] = input.value;
-  });
-  if(!valid) return afficherToast("Veuillez remplir tous les champs obligatoires !");
-
-  let images = [paymentProofImage];
-  document.querySelectorAll('.custom-file-field').forEach((fileInput, idx) => {
-    let box = document.getElementById(`preview-box-${idx}`);
-    let imgTag = box.querySelector('img');
-    if(imgTag) images.push(imgTag.src);
-  });
-
-  fermerModal();
-  document.getElementById('processingModal').style.display = "flex";
-
-  setTimeout(() => {
-    let priceNum = 0;
-    let optPriceStr = optionsDetails[activeOptionName] ? optionsDetails[activeOptionName].price : "0";
-    let matchNum = optPriceStr.replace(/\D/g, '');
-    if(matchNum) priceNum = parseInt(matchNum);
-
-    let now = new Date();
-    let dossierId = Date.now();
-    let nouvelleDemande = {
-      id: dossierId,
-      clientPhone: userProfile.phone,
-      clientName: userProfile.name,
-      service: activeOptionName,
-      details: details,
-      images: images,
-      status: "En attente",
-      date: now.toLocaleDateString(),
-      rawDate: now.toISOString(),
-      amount: priceNum
-    };
-
-    db.ref('voda_dossiers/' + dossierId).set(nouvelleDemande, (error) => {
-      document.getElementById('processingModal').style.display = "none";
-      if (error) {
-        afficherToast("Imeshindwa kutuma. Angalia mtandao wako!");
-      } else {
-        afficherToast("Demande envoyée avec succès !");
-      }
-    });
-  }, 1000);
-}
 
 // CHAT ISOLATION & NOTIFICATIONS
 function getActiveChatMessages() {
@@ -859,7 +805,61 @@ function afficherToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.style.display = 'block';
   setTimeout(() => { t.style.display = 'none'; }, 3000);
+}function soumettreDemande() {
+  playClickSound();
+  if(!paymentProofImage) return afficherToast("Veuillez joindre la capture d'écran du paiement (0811301919) !");
+
+  const inputs = document.querySelectorAll('.custom-field');
+  let details = {};
+  let valid = true;
+  inputs.forEach(input => {
+    if(!input.value.trim()) valid = false;
+    details[input.getAttribute('data-fieldname')] = input.value;
+  });
+  if(!valid) return afficherToast("Veuillez remplir tous les champs obligatoires !");
+
+  let images = [paymentProofImage];
+  document.querySelectorAll('.custom-file-field').forEach((fileInput, idx) => {
+    let box = document.getElementById(`preview-box-${idx}`);
+    let imgTag = box.querySelector('img');
+    if(imgTag) images.push(imgTag.src);
+  });
+
+  fermerModal();
+  document.getElementById('processingModal').style.display = "flex";
+
+  setTimeout(() => {
+    let priceNum = 0;
+    let optPriceStr = optionsDetails[activeOptionName] ? optionsDetails[activeOptionName].price : "0";
+    let matchNum = optPriceStr.replace(/\D/g, '');
+    if(matchNum) priceNum = parseInt(matchNum);
+
+    let now = new Date();
+    let dossierId = Date.now();
+    let nouvelleDemande = {
+      id: dossierId,
+      clientPhone: userProfile.phone,
+      clientName: userProfile.name,
+      service: activeOptionName,
+      details: details,
+      images: images,
+      status: "En attente",
+      date: now.toLocaleDateString(),
+      rawDate: now.toISOString(),
+      amount: priceNum
+    };
+
+    db.ref('voda_dossiers/' + dossierId).set(nouvelleDemande, (error) => {
+      document.getElementById('processingModal').style.display = "none";
+      if (error) {
+        afficherToast("Imeshindwa kutuma. Angalia mtandao wako!");
+      } else {
+        afficherToast("Demande envoyée avec succès !");
+      }
+    });
+  }, 1000);
 }
+
 </script>
 </body>
 </html>
