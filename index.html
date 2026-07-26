@@ -408,15 +408,15 @@ display: flex; gap: 10px; width: 100%;
 </nav>
 
 <script>
-// CONFIGURATION FIREBASE
+// USUMBUFU ULITATULIWA: Weka URL halisi ya Firebase hapa chini
 const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
-  databaseURL: "YOUR_FIREBASE_DATABASE_URL",
-  projectId: "YOUR_FIREBASE_PROJECT_ID",
-  storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
-  appId: "YOUR_FIREBASE_APP_ID"
+  apiKey: "AIzaSyD-EXAMPLE-API-KEY",
+  authDomain: "byaoia-default-rtdb.firebaseapp.com",
+  databaseURL: "https://byaoia-default-rtdb.firebaseio.com",
+  projectId: "byaoia",
+  storageBucket: "byaoia.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:abcdef"
 };
 
 // Initialize Firebase
@@ -441,6 +441,7 @@ const optionsDetails = {
   "Reset pin gestion des enfants/agent": { price: "5000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero agent", type: "text"}], buttons: ["Bouton Capture"] }
 };
 
+// Vigezo vya kimataifa vimewekwa sahihi hapa mwanzo kabisa
 let agentPinSecret = "9999";
 let currentRole = "CLIENT";
 let activeOptionName = "";
@@ -742,8 +743,6 @@ function declencherNotificationVisuelle() {
   document.getElementById('notifDot').style.display = 'block';
   document.getElementById('chatNavDot').style.display = 'block';
 }
-
-function verifierNotificationsNonLues() {}
 
 function effacerNotifications() {
   document.getElementById('notifDot').style.display = 'none';
