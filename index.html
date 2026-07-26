@@ -385,6 +385,12 @@ display: flex; gap: 10px; width: 100%;
     <button onclick="fermerModalAgent()" class="btn-sec" style="text-align:center;">Annuler</button>
   </div>
 </div>
+<!-- Vitufe vya Ziada vya Chat -->
+<div class="chat-actions-container" style="display: flex; gap: 10px; margin: 10px 0;">
+  <button id="btnClearChat" onclick="futaMazungumzo()" style="background: #ff4d4d; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">Effacer</button>
+  <button id="btnBackupChat" onclick="hifadhiBackupChat()" style="background: #2ecc71; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">Backup</button>
+  <button id="btnRestoreChat" onclick="rejeshaBackupChat()" style="background: #3498db; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">Restaurer</button>
+</div>
 
 <!-- NAVIGATION BAS DE PAGE -->
 <nav style="position:fixed; bottom:0; left:0; right:0; background:#181818; border-top:1px solid var(--border); display:flex; justify-content:space-around; padding:10px 0; z-index:100;">
@@ -859,7 +865,51 @@ function afficherToast(msg) {
       }
     });
   }, 1000);
+}// 1. MFUMO WA MAJIBU YA KIOTOMATIKI (Auto-Response ya Agent kwa Mteja)
+function tum_jumbeYaKiotomatiki(ujumbeText, nambariYaMteja) {
+  if (!db) return;
+  const ujumbeRef = db.ref('chats/' + nambariYaMteja).push();
+  ujumbeRef.set({
+    mtumaji: "Agent",
+    ujumbe: ujumbeText,
+    wakati: Date.now()
+  }).then(() => {
+    console.log("Ujumbe wa kiotomatiki umetumwa kwa mteja!");
+  }).catch((error) => {
+    console.error("Hitilafu ya kutuma ujumbe:", error);
+  });
 }
+
+// 2. KITUFE CHA KUFUTA MAZUNGUMZO (Effacer)
+function futaMazungumzo() {
+  if (confirm("Je, una uhakika unataka kufuta mazungumzo haya?")) {
+    // Futa kwenye eneo la kuonyesha (UI) na kama unataka kufuta Firebase weka rejea yake hapa
+    const chatContainer = document.getElementById('chatMessagesBox'); // Badilisha jina hili kuwa ID ya kiboksi chako cha chat
+    if (chatContainer) chatContainer.innerHTML = "";
+    localStorage.removeItem('chatStore');
+    alert("Mazungumzo yamefutwa kikamilifu.");
+  }
+}
+
+// 3. KITUFE CHA KUHIFADHI (Backup)
+function hifadhiBackupChat() {
+  const dataYaKuhifadhi = JSON.stringify(chatStore || {});
+  localStorage.setItem('chat_backup_byao', dataYaKuhifadhi);
+  alert("Backup imehifadhiwa kwenye simu yako kwa mafanikio!");
+}
+
+// 4. KITUFE CHA KUREJESHA (Restaurer)
+function rejeshaBackupChat() {
+  const backupData = localStorage.getItem('chat_backup_byao');
+  if (backupData) {
+    chatStore = JSON.parse(backupData);
+    alert("Mazungumzo yamerejeshwa (Restaurer) kikamilifu!");
+    // Hapa unaweza kuita kazi yako ya kuchora upya chat kwenye skrini (kama ipo)
+  } else {
+    alert("Hakuna backup iliyopatikana kwenye simu hii.");
+  }
+}
+
 
 </script>
 </body>
