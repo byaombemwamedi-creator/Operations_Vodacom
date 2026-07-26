@@ -434,18 +434,18 @@ const db = firebase.database();
 
 const optionsDetails = {
   "Ouverture et migration + tic-tac": { price: "1000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Bouton Carte d'Électeur", "Bouton Capture"] },
-  "Swapp": { price: "2 000 FC", fields: [{name: "numero perdu", type: "text"}, {name: "5 numéro fréquemment appelé (1)", type: "text"}, {name: "solde disponible", type: "text"}, {name: "iccd", type: "text"}], buttons: ["Bouton Capture"] },
-  "Creation IRM + migration tic-tac": { price: "7 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Bouton Capture"] },
+  "Swapp": { price: "2 000 FC", fields: [{name: "numero perdu", type: "text"}, {name: "5 numéro fréquemment appelé (1)", type: "text"}, {name: "solde disponible", type: "text"}, {name: "iccd", type: "text"}], buttons: ["Carte d'électeur"] },
+  "Creation IRM + migration tic-tac": { price: "7 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'électeur"] },
   "Creation sim swappette": { price: "20 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Bouton Capture"] },
-  "Creation gestion des enfants/prive": { price: "20 000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero", type: "text"}], buttons: ["Bouton Capture"] },
-  "Creation gestion des enfants/agent": { price: "20 000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero agent", type: "text"}], buttons: ["Bouton Capture"] },
+  "Creation gestion des enfants/prive": { price: "20 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["carte d'électeur"] },
+  "Creation gestion des enfants/agent": { price: "20 000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero agent", type: "text"}], buttons: ["carte d'électeur"] },
   "Creation sim vodae": { price: "Gratuit", fields: [{name: "nom", type: "text"}, {name: "numero", type: "text"}], buttons: [] },
   "Demande puk": { price: "Gratuit", fields: [{name: "iccd", type: "text"}], buttons: [] },
-  "Reset pin IRM": { price: "6 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Bouton Capture"] },
-  "Deblocage pin mpesa": { price: "5 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Bouton Capture"] },
-  "Reset pin vodae": { price: "3000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Bouton Capture"] },
-  "Reset pin gestion des enfants /prive": { price: "5000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero", type: "text"}], buttons: ["Bouton Capture"] },
-  "Reset pin gestion des enfants/agent": { price: "5000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero agent", type: "text"}], buttons: ["Bouton Capture"] }
+  "Reset pin IRM": { price: "6 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'électeur"] },
+  "Deblocage pin mpesa": { price: "5 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'électeur"] },
+  "Reset pin vodae": { price: "3000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'électeur"] },
+  "Reset pin gestion des enfants /prive": { price: "5000 FC", fields: [{name: "numero", type: "text"}], buttons: ["carte d'électeur"] },
+  "Reset pin gestion des enfants/agent": { price: "5000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero agent", type: "text"}], buttons: ["carte d'électeur"] }
 };
 
 // Vigezo vya kimataifa vimewekwa sahihi hapa mwanzo kabisa
