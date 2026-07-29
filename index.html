@@ -155,6 +155,7 @@ display: flex; gap: 10px; width: 100%;
   </div>
   
   <button onclick="ouvrirProfilModal()" class="btn-sec">📝 Modifier mon Profil</button>
+  <button onclick="ouvrirModalChangementPin()" class="btn-sec">🔑 Modifier PIN / Mot de passe</button>
   <button onclick="ouvrirModalGuide()" class="btn-sec">📖 Comment utiliser l'app</button>
   <button onclick="gererClicBoutonAgent()" class="btn-sec" id="roleToggle">🔄 Mode : CLIENT</button>
   <button onclick="verrouillerApp()" class="btn-danger">🔒 Verrouiller l'application</button>
@@ -363,6 +364,36 @@ display: flex; gap: 10px; width: 100%;
   </div>
 </div>
 
+<!-- MODAL MODIFICATION PIN / MOT DE PASSE -->
+<div id="modalChangementPin" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); padding:20px; z-index:400;">
+  <div class="card" style="margin-top: 40px;">
+    <h3 style="color:var(--voda-red);">🔑 Modifier PIN / Mot de passe</h3>
+    <label>Nouveau PIN Agent (4 chiffres) :</label>
+    <input type="password" id="newAgentPinInput" maxlength="4" placeholder="Ex: 1234">
+    <label style="margin-top:10px;">Nouveau Mot de passe Client / App :</label>
+    <input type="password" id="newClientPassInput" placeholder="Nouveau mot de passe">
+    <button onclick="sauvegarderNouveauPin()" class="btn-success" style="margin-top: 15px; margin-bottom:8px;">Mettre à jour</button>
+    <button onclick="fermerModalChangementPin()" class="btn-sec" style="text-align:center;">Fermer</button>
+  </div>
+</div>
+
+<!-- MODAL TRAITEMENT AGENT (RÉPONDRE / VALIDÉ / REJETÉ) -->
+<div id="modalActionAgentDossier" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); padding:20px; z-index:500;">
+  <div class="card" style="margin-top: 30px;">
+    <h3 style="color:var(--voda-red);">Gérer le dossier</h3>
+    <p id="agentModalDossierInfo" style="font-size:0.85rem; color:#ddd; margin:8px 0;"></p>
+    
+    <label>Répondre au client / Instructions :</label>
+    <textarea id="agentDossierReponseInput" placeholder="Écrire la réponse..." style="width:100%; height:80px; padding:10px; background:#222; border:1px solid var(--border); color:#fff; border-radius:6px; resize:none;"></textarea>
+    
+    <div style="display:flex; gap:10px; margin-top:15px;">
+      <button onclick="soumettreActionAgentDossier('Validé ✅')" style="flex:1; background:var(--success); color:#fff; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;">Valider</button>
+      <button onclick="soumettreActionAgentDossier('Rejeté ❌')" style="flex:1; background:var(--voda-red); color:#fff; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;">Rejeter</button>
+    </div>
+    <button onclick="fermerModalActionAgentDossier()" class="btn-sec" style="margin-top:10px; text-align:center;">Fermer</button>
+  </div>
+</div>
+
 <!-- MODAL TRAITEMENT -->
 <div id="processingModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); z-index:9999; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
     <div style="position:relative; display:flex; align-items:center; justify-content:center; margin-bottom:20px;">
@@ -433,7 +464,7 @@ const db = firebase.database();
 
 const optionsDetails = {
   "Ouverture et migration + tic-tac": { price: "1000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'Électeur"] },
-  "Swapp": { price: "2 000 FC", fields: [{name: "numero perdu", type: "text"}, {name: "5 numéro fréquemment appelé (1)", type: "text"}, {name: "solde disponible", type: "text"}, {name: "iccd", type: "text"}], buttons: ["Carte d'électeur"] },
+  "Swapp": { price: "2 000 FC", fields: [{name: "numero perdu", type: "text"}, {name: "5 numeros fréquemment appelés", type: "textarea"}, {name: "solde disponible", type: "text"}, {name: "dernière recharge d'unité", type: "text"}, {name: "iccd", type: "text"}], buttons: ["Carte d'électeur"] },
   "Creation IRM + migration tic-tac": { price: "7 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'électeur"] },
   "Creation sim swappette": { price: "20 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'électeur"] },
   "Creation gestion des enfants/prive": { price: "20 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["carte d'électeur"] },
@@ -447,10 +478,11 @@ const optionsDetails = {
   "Reset pin gestion des enfants/agent": { price: "5000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero agent", type: "text"}], buttons: ["carte d'électeur"] }
 };
 
-let agentPinSecret = "9999";
+let agentPinSecret = localStorage.getItem('voda_agent_pin') || "9999";
 let currentRole = "CLIENT";
 let activeOptionName = "";
 let paymentProofImage = "";
+let currentSelectedDossierId = null;
 
 let userProfile = JSON.parse(localStorage.getItem('voda_user_profile')) || { name: "Byaombe Alembe", phone: "+243000000000" };
 let demandes = [];
@@ -513,6 +545,31 @@ function ouvrirProfilModal() {
   document.getElementById('modalProfile').style.display = "block";
 }
 function fermerProfilModal() { document.getElementById('modalProfile').style.display = "none"; }
+
+function ouvrirModalChangementPin() {
+  fermerSidebar();
+  document.getElementById('newAgentPinInput').value = "";
+  document.getElementById('newClientPassInput').value = "";
+  document.getElementById('modalChangementPin').style.display = "block";
+}
+function fermerModalChangementPin() { document.getElementById('modalChangementPin').style.display = "none"; }
+
+function sauvegarderNouveauPin() {
+  playClickSound();
+  const newPin = document.getElementById('newAgentPinInput').value.trim();
+  const newPass = document.getElementById('newClientPassInput').value.trim();
+  
+  if(newPin) {
+    if(newPin.length !== 4) return afficherToast("Le PIN Agent doit comporter 4 chiffres !");
+    agentPinSecret = newPin;
+    localStorage.setItem('voda_agent_pin', newPin);
+  }
+  if(newPass) {
+    localStorage.setItem('voda_client_pass', newPass);
+  }
+  fermerModalChangementPin();
+  afficherToast("Paramètres de sécurité mis à jour !");
+}
 
 function ouvrirModalGuide() {
   fermerSidebar();
@@ -604,7 +661,11 @@ function ouvrirOption(optionName) {
   const container = document.getElementById('modalFields');
   container.innerHTML = "";
   data.fields.forEach(f => {
-    container.innerHTML += `<label>${f.name} :</label><input type="${f.type}" class="custom-field" data-fieldname="${f.name}" placeholder="Entrer ${f.name}">`;
+    if(f.type === 'textarea') {
+      container.innerHTML += `<label>${f.name} :</label><textarea class="custom-field" data-fieldname="${f.name}" placeholder="Entrer les 5 numéros..." style="height:70px; resize:none;"></textarea>`;
+    } else {
+      container.innerHTML += `<label>${f.name} :</label><input type="${f.type}" class="custom-field" data-fieldname="${f.name}" placeholder="Entrer ${f.name}">`;
+    }
   });
 
   const btnContainer = document.getElementById('modalButtonsExtra');
@@ -756,7 +817,8 @@ function afficherDemandesClient(filterQuery = "") {
       <div style="font-size:0.85rem; margin-top:5px;">
         ${Object.entries(d.details).map(([k, v]) => `<div><strong>${k} :</strong> ${v}</div>`).join('')}
       </div>
-      <p style="font-size:0.85rem; margin-top:8px;">Statut : <strong style="color:var(--warning);">${d.status}</strong></p>
+      <p style="font-size:0.85rem; margin-top:8px;">Statut : <strong style="color:${d.status.includes('Validé') ? 'var(--success)' : d.status.includes('Rejeté') ? 'var(--voda-red)' : 'var(--warning)'};">${d.status}</strong></p>
+      ${d.agentResponse ? `<p style="font-size:0.85rem; margin-top:4px; color:#38bdf8;"><strong>Réponse Agent :</strong> ${d.agentResponse}</p>` : ''}
     </div>
   `).join('');
 }
@@ -781,23 +843,41 @@ function afficherDemandesAgent() {
           ${d.images.map(img => `<img src="${img}" style="width:45px; height:45px; object-fit:cover; border-radius:4px; border:1px solid var(--voda-red); cursor:pointer;" onclick="ouvrirModalImage('${img}')">`).join('')}
         </div>
       ` : ''}
-      <p style="font-size:0.85rem; margin-top:8px;">Statut : <strong style="color:var(--warning);">${d.status}</strong></p>
-      ${d.status === 'En attente' ? `<button onclick="validerCommande(${d.id})" class="btn-success" style="padding:8px 12px; font-size:0.8rem; margin-top:10px;">Valider la commande</button>` : ''}
+      <p style="font-size:0.85rem; margin-top:8px;">Statut : <strong style="color:${d.status.includes('Validé') ? 'var(--success)' : d.status.includes('Rejeté') ? 'var(--voda-red)' : 'var(--warning)'};">${d.status}</strong></p>
+      <button onclick="ouvrirModalActionAgent(${d.id}, '${d.service}', '${d.clientName || 'Inconnu'}')" class="btn-sec" style="margin-top:10px; text-align:center; background:#222; border:1px solid var(--voda-red);">Gérer ce dossier (Validé, Rejeté, Répondre)</button>
     </div>
   `).join('');
 }
 
-function validerCommande(id) {
+function ouvrirModalActionAgent(id, serviceName, clientName) {
   playClickSound();
-  const cmd = demandes.find(d => d.id === id);
-  if(cmd) {
-    cmd.status = "Validé ✅";
-    db.ref('voda_dossiers/' + id).update({ status: "Validé ✅" }, (error) => {
-      if(!error) {
-        afficherToast("Commande validée avec succès !");
-      }
-    });
-  }
+  currentSelectedDossierId = id;
+  document.getElementById('agentModalDossierInfo').textContent = `Service: ${serviceName} | Client: ${clientName}`;
+  document.getElementById('agentDossierReponseInput').value = "";
+  document.getElementById('modalActionAgentDossier').style.display = "block";
+}
+
+function fermerModalActionAgentDossier() {
+  document.getElementById('modalActionAgentDossier').style.display = "none";
+}
+
+function soumettreActionAgentDossier(newStatus) {
+  playClickSound();
+  const reponseTxt = document.getElementById('agentDossierReponseInput').value.trim();
+  
+  if(!currentSelectedDossierId) return;
+
+  let updateData = { status: newStatus };
+  if(reponseTxt) updateData.agentResponse = reponseTxt;
+
+  db.ref('voda_dossiers/' + currentSelectedDossierId).update(updateData, (error) => {
+    if(!error) {
+      afficherToast(`Dossier mis à jour : ${newStatus}`);
+      fermerModalActionAgentDossier();
+    } else {
+      afficherToast("Erreur lors de la mise à jour !");
+    }
+  });
 }
 
 function filtrerServices(query) {
@@ -816,11 +896,9 @@ function afficherToast(msg) {
 function soumettreDemande() {
   playClickSound();
   
-  // Angalia kama bei ya huduma hii ni "Gratuit"
   let optPriceStr = optionsDetails[activeOptionName] ? optionsDetails[activeOptionName].price : "";
   let isGratuit = optPriceStr.toLowerCase().includes("gratuit");
 
-  // Kama SIYO bure na hakuna picha ya malipo, ndipo isimame
   if (!isGratuit && !paymentProofImage) {
       return afficherToast("Veuillez joindre la capture de paiement svp !");
   }
@@ -874,7 +952,6 @@ function soumettreDemande() {
         afficherToast("Imeshindwa kutuma. Angalia mtandao wako!");
       } else {
         afficherToast("Demande envoyée avec succès !");
-        // Ujumbe wa kiotomatiki kwa mteja
         tonaJibuLaKiotomatikiKwaMteja(userProfile.phone, activeOptionName);
         fermerModal();
       }
@@ -882,7 +959,6 @@ function soumettreDemande() {
   }, 1000);
 }
 
-// 1. MFUMO WA MAJIBU YA KIOTOMATIKI KWA KIFARANSA
 function tonaJibuLaKiotomatikiKwaMteja(nambariYaMteja, jinaLaHuduma) {
   if (!db) return;
   
@@ -895,7 +971,6 @@ function tonaJibuLaKiotomatikiKwaMteja(nambariYaMteja, jinaLaHuduma) {
   db.ref('voda_chats/' + sanitizedPhone).set(msgs);
 }
 
-// 2. KUFUTA MAZUNGUMZO
 function futaMazungumzoPro() {
   if (confirm("Je, una uhakika unataka kufuta mazungumzo haya?")) {
     const kiboksiChaChat = document.getElementById('chatBox');
@@ -909,7 +984,6 @@ function futaMazungumzoPro() {
   }
 }
 
-// 3. KUHIFADHI BACKUP
 function hifadhiBackupChatPro() {
   try {
     const dataYaKuhifadhi = JSON.stringify(chatStore || {});
@@ -920,7 +994,6 @@ function hifadhiBackupChatPro() {
   }
 }
 
-// 4. KUREJESHA BACKUP
 function rejeshaBackupChatPro() {
   const backupData = localStorage.getItem('chat_backup_byao');
   if (backupData) {
