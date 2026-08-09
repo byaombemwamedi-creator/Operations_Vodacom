@@ -198,9 +198,9 @@ display: flex; gap: 10px; width: 100%;
     <input type="text" class="search-box" id="searchServiceInput" placeholder="Rechercher un service..." onkeyup="filtrerServices(this.value)">
 
     <div class="services-grid" id="mainServicesGrid">
-      <div class="service-btn-card" onclick="ouvrirOption('Ouverture et migration + tic-tac')">
+      <div class="service-btn-card" onclick="ouvrirOption('Ouverture compte mpesa')">
         <div class="icon-box">🔄</div>
-        <span>Ouverture et migration + tic-tac</span>
+        <span>Ouverture compte m-pesa</span>
       </div>
       <div class="service-btn-card" onclick="ouvrirOption('Swapp')">
         <div class="icon-box">🔀</div>
@@ -462,7 +462,7 @@ if (!firebase.apps.length) {
 const db = firebase.database();
 
 const optionsDetails = {
-  "Ouverture et migration + tic-tac": { price: "1000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'Électeur"] },
+  "Ouverture compte mpesa": { price: "Gratuit", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'Électeur"] },
   "Swapp": { price: "2 000 FC", fields: [{name: "numero perdu", type: "text"}, {name: "5 numeros fréquemment appelés", type: "textarea"}, {name: "solde disponible", type: "text"}, {name: "dernière recharge d'unité", type: "text"}, {name: "iccd", type: "text"}], buttons: ["Carte d'électeur"] },
   "Creation IRM + migration tic-tac": { price: "7 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'électeur"] },
   "Creation sim swappette": { price: "20 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'électeur"] },
