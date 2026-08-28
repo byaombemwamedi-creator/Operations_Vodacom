@@ -472,8 +472,7 @@ const optionsDetails = {
   "Reset pin IRM": { price: "5 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'électeur"] },
   "Deblocage pin mpesa": { price: "1 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'électeur"] },
   "Reset pin vodae": { price: "1000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'électeur"] },
-  "Reset pin gestion des enfants /prive": { price: "5000 FC", fields: [{name: "numero", type: "text"}], buttons: ["carte d'électeur"] },
-  "Reset pin gestion des enfants/agent": { price: "5000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero agent", type: "text"}], buttons: ["carte d'électeur"] }
+  "Reset pin gestion des enfants": { price: "5000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero agent", type: "text"}], buttons: ["carte d'électeur"] }
 };
 
 let agentPinSecret = localStorage.getItem('voda_agent_pin') || "9999";
