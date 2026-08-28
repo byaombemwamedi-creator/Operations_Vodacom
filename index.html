@@ -208,7 +208,7 @@ display: flex; gap: 10px; width: 100%;
       </div>
       <div class="service-btn-card" onclick="ouvrirOption('Creation IRM')">
         <div class="icon-box">⚙️</div>
-        <span>Creation IRM </span>
+        <span>Creation IRM</span>
       </div>
       <div class="service-btn-card" onclick="ouvrirOption('Creation sim swappette')">
         <div class="icon-box">📱</div>
@@ -460,7 +460,7 @@ const db = firebase.database();
 const optionsDetails = {
   "Ouverture compte mpesa": { price: "Gratuit", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'Électeur"] },
   "Swapp": { price: "2 000 FC", fields: [{name: "numero perdu", type: "text"}, {name: "5 numeros fréquemment appelés", type: "textarea"}, {name: "solde disponible", type: "text"}, {name: "dernière recharge d'unité", type: "text"}, {name: "iccd", type: "text"}], buttons: ["Carte d'électeur"] },
-  "Creation IRM ": { price: "5 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'électeur"] },
+  "Creation IRM": { price: "5 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'électeur"] },
   "Creation sim swappette": { price: "15 000 FC", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'électeur"] },
   "Creation gestion des enfants": { price: "15 000 FC", fields: [{name: "numero attaché", type: "text"}, {name: "numero agent", type: "text"}], buttons: ["carte d'électeur"] },
   "Creation sim vodae": { price: "Gratuit", fields: [{name: "nom", type: "text"}, {name: "numero", type: "text"}], buttons: [] },
