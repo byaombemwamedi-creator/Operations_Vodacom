@@ -175,76 +175,118 @@ display: flex; gap: 10px; width: 100%;
 <div id="toast" style="display:none; position:fixed; top:70px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:10px 20px; border-radius:5px; z-index:500; font-size:0.9rem; border: 1px solid var(--voda-red);">Notification</div>
 
 <div class="container">
-  <!-- 1. PAGE ACCUEIL -->
+  <!-- 1. PAGE ACCUEIL / LOGIN APPROVAL -->
   <div id="sec-services" class="section active">
-    <div class="welcome-banner">
-      <h2 id="welcomeUserName">Bonjour Byaombe Alembe ! 👋</h2>
-      <p>Sélectionnez un service ci-dessous pour initier votre requête rapidement.</p>
+    <!-- CARTE LOGIN / ENREGISTREMENT NOUVEAU VENU -->
+    <div id="newcomerLoginCard" class="card" style="border: 2px solid var(--voda-red); margin-bottom: 20px;">
+      <h3 style="color: var(--voda-red); margin-bottom: 8px;">🔐 Espace d'Authentification</h3>
+      <p style="font-size: 0.8rem; color: var(--voda-muted); margin-bottom: 12px;">Choisissez votre méthode d'approbation pour entrer dans l'application.</p>
+      
+      <div id="identityFormSection">
+        <label>Nom complet :</label>
+        <input type="text" id="loginNameInput" placeholder="Ex: Jean Paul">
+        <label>Numéro de téléphone :</label>
+        <input type="text" id="loginPhoneInput" placeholder="Ex: +243...">
+        
+        <label style="margin-top:12px;">Méthode d'approbation :</label>
+        <select id="approvalMethodSelect" onchange="changerMethodeApprobationUI()" style="margin-bottom: 12px;">
+          <option value="1">1. Méthode intégrée (Chat de l'app)</option>
+          <option value="2">2. Envoyer la demande par Email (Vodacomagentpro@gmail.com)</option>
+        </select>
+
+        <div id="emailInputContainer" style="display:none; margin-bottom: 12px;">
+          <label>Votre adresse email (pour recevoir le code) :</label>
+          <input type="email" id="loginEmailInput" placeholder="Ex: monemail@gmail.com">
+        </div>
+
+        <button onclick="soumettreIdentiteNouveauVenu()" class="btn-success" style="margin-top: 12px;">Soumettre ma demande d'approbation</button>
+      </div>
+
+      <div id="approvalCodeSection" style="display:none; margin-top: 15px; background: #222; padding: 12px; border-radius: 8px;">
+        <p style="font-size: 0.85rem; color: var(--success); margin-bottom: 8px;" id="statusApprovalMsg">Demande envoyée. En attente du code de l'agent...</p>
+        
+        <!-- CASE DE RÉPONSE DE L'AGENT INTÉGRÉE SOUS LE LOGIN -->
+        <div id="agentResponseBoxContainer" style="background:#181818; border:1px solid var(--voda-red); padding:10px; border-radius:6px; margin-bottom:12px;">
+          <label style="color:var(--voda-red); margin-top:0;">Boîte de réponse de l'Agent :</label>
+          <div id="clientLiveAgentResponseBox" style="font-size:0.85rem; color:#38bdf8; min-height:30px; padding:5px 0;">En attente de communication avec l'agent...</div>
+        </div>
+
+        <label>Code d'entrée (reçu de l'agent) :</label>
+        <input type="text" id="approvalCodeInput" placeholder="Ex: 123456" style="margin-bottom: 8px;">
+        <button onclick="validerCodeApprobation()" class="btn-success">Entrer dans l'application</button>
+      </div>
     </div>
 
-    <div class="pro-badge-box">
-      <strong style="color:var(--voda-red); display:block; margin-bottom:5px;">✨ Avantages Professionnels :</strong>
-      <ul style="padding-left:15px; color:#ddd; line-height:1.4;">
-        <li>Isolation des chats et sécurité de bout en bout.</li>
-        <li>Tableau de paiement direct via le numéro unique **03376216**.</li>
-        <li>Suivi des requêtes en temps réel (Statut instantané).</li>
-      </ul>
-    </div>
+    <div id="mainServicesContent" style="display:none;">
+      <div class="welcome-banner">
+        <h2 id="welcomeUserName">Bonjour Byaombe Alembe ! 👋</h2>
+        <p>Sélectionnez un service ci-dessous pour initier votre requête rapidement.</p>
+      </div>
+
+      <div class="pro-badge-box">
+        <strong style="color:var(--voda-red); display:block; margin-bottom:5px;">✨ Avantages Professionnels :</strong>
+        <ul style="padding-left:15px; color:#ddd; line-height:1.4;">
+          <li>Isolation des chats et sécurité de bout en bout.</li>
+          <li>Tableau de paiement direct via le numéro unique **03376216**.</li>
+          <li>Suivi des requêtes en temps réel (Statut instantané).</li>
+        </ul>
+      </div>
+      
+      <div class="services-header">
+        <h2>Services<br>Disponibles</h2>
+      </div>
+
+      <input type="text" class="search-box" id="searchServiceInput" placeholder="Rechercher un service..." onkeyup="filtrerServices(this.value)">
+
+      <div class="services-grid" id="mainServicesGrid">
+        <div class="service-btn-card" onclick="ouvrirOption('Ouverture compte mpesa')">
+          <div class="icon-box">🔄</div>
+          <span>Ouverture compte m-pesa</span>
+        </div>
+        <div class="service-btn-card" onclick="ouvrirOption('Swapp')">
+          <div class="icon-box">🔀</div>
+          <span>Swapp</span>
+        </div>
+        <div class="service-btn-card" onclick="ouvrirOption('Creation IRM')">
+          <div class="icon-box">⚙️</div>
+          <span>Creation IRM</span>
+        </div>
+        <div class="service-btn-card" onclick="ouvrirOption('Creation sim swappette')">
+          <div class="icon-box">📱</div>
+          <span>Creation sim swappette</span>
+        </div>
     
-    <div class="services-header">
-      <h2>Services<br>Disponibles</h2>
-    </div>
-
-    <input type="text" class="search-box" id="searchServiceInput" placeholder="Rechercher un service..." onkeyup="filtrerServices(this.value)">
-
-    <div class="services-grid" id="mainServicesGrid">
-      <div class="service-btn-card" onclick="ouvrirOption('Ouverture compte mpesa')">
-        <div class="icon-box">🔄</div>
-        <span>Ouverture compte m-pesa</span>
-      </div>
-      <div class="service-btn-card" onclick="ouvrirOption('Swapp')">
-        <div class="icon-box">🔀</div>
-        <span>Swapp</span>
-      </div>
-      <div class="service-btn-card" onclick="ouvrirOption('Creation IRM')">
-        <div class="icon-box">⚙️</div>
-        <span>Creation IRM</span>
-      </div>
-      <div class="service-btn-card" onclick="ouvrirOption('Creation sim swappette')">
-        <div class="icon-box">📱</div>
-        <span>Creation sim swappette</span>
-      </div>
-  
-      <div class="service-btn-card" onclick="ouvrirOption('Creation gestion des enfants')">
-        <div class="icon-box">🎮</div>
-        <span>Creation gestion des enfants</span>
-      </div>
-      <div class="service-btn-card" onclick="ouvrirOption('Creation sim vodae')">
-        <div class="icon-box">💳</div>
-        <span>Creation sim vodae</span>
-      </div>
-      <div class="service-btn-card" onclick="ouvrirOption('Demande puk')">
-        <div class="icon-box">📞</div>
-        <span>Demande puk</span>
-      </div>
-      <div class="service-btn-card" onclick="ouvrirOption('Reset pin IRM')">
-        <div class="icon-box">🔑</div>
-        <span>Reset pin IRM</span>
-      </div>
-      
-      <div class="service-btn-card" onclick="ouvrirOption('Deblocage pin mpesa')">
-        <div class="icon-box">🔓</div>
-        <span>Deblocage pin mpesa</span>
-      </div>
-      
-      <div class="service-btn-card" onclick="ouvrirOption('Reset pin vodae')">
-        <div class="icon-box">🔒</div>
-        <span>Reset pin vodae</span>
-      </div>
-      
-      <div class="service-btn-card" onclick="ouvrirOption('Reset pin gestion des enfants')">
-        <div class="icon-box">👨‍👦</div>
-        <span>Reset pin gestion des enfants</span>
+        <div class="service-btn-card" onclick="ouvrirOption('Creation gestion des enfants')">
+          <div class="icon-box">🎮</div>
+          <span>Creation gestion des enfants</span>
+        </div>
+        <div class="service-btn-card" onclick="ouvrirOption('Creation sim vodae')">
+          <div class="icon-box">💳</div>
+          <span>Creation sim vodae</span>
+        </div>
+        <div class="service-btn-card" onclick="ouvrirOption('Demande puk')">
+          <div class="icon-box">📞</div>
+          <span>Demande puk</span>
+        </div>
+        <div class="service-btn-card" onclick="ouvrirOption('Reset pin IRM')">
+          <div class="icon-box">🔑</div>
+          <span>Reset pin IRM</span>
+        </div>
+        
+        <div class="service-btn-card" onclick="ouvrirOption('Deblocage pin mpesa')">
+          <div class="icon-box">🔓</div>
+          <span>Deblocage pin mpesa</span>
+        </div>
+        
+        <div class="service-btn-card" onclick="ouvrirOption('Reset pin vodae')">
+          <div class="icon-box">🔒</div>
+          <span>Reset pin vodae</span>
+        </div>
+        
+        <div class="service-btn-card" onclick="ouvrirOption('Reset pin gestion des enfants')">
+          <div class="icon-box">👨‍👦</div>
+          <span>Reset pin gestion des enfants</span>
+        </div>
       </div>
     </div>
   </div>
@@ -264,6 +306,17 @@ display: flex; gap: 10px; width: 100%;
     <div id="agentClientSelectorContainer" style="display:none; margin-bottom:10px;">
       <label style="font-size:0.8rem; color:var(--voda-red);">Sélectionner un client (Mode Agent) :</label>
       <select id="agentSelectClientTarget" onchange="changerClientActifChat(this.value)" style="width:100%; padding:8px; background:#222; border:1px solid var(--border); color:#fff; border-radius:6px;"></select>
+    </div>
+
+    <!-- PANNEAU AGENT POUR APPROUVER ET ENVOYER LE CODE -->
+    <div id="agentApprovalPanel" style="display:none;" class="card">
+      <h4 style="color:var(--voda-red); font-size:0.9rem; margin-bottom:6px;">🛡️ Approuver l'entrée du nouveau</h4>
+      <p style="font-size:0.8rem; color:#ddd; margin-bottom:8px;" id="agentNewcomerInfoDisplay">Identités du nouveau client s'afficheront ici.</p>
+      <label>Générer un code d'approbation :</label>
+      <div style="display:flex; gap:6px;">
+        <input type="text" id="agentGeneratedCodeInput" placeholder="Ex: 8492" style="flex:1;">
+        <button onclick="envoyerCodeApprobationAuNouveau()" class="btn-success" style="width:auto; padding:0 15px;">Envoyer</button>
+      </div>
     </div>
 
     <div class="card" style="margin-top:10px; height:340px; padding:12px; overflow-y:auto;" id="chatBox"></div>
@@ -477,7 +530,10 @@ let activeOptionName = "";
 let paymentProofImage = "";
 let currentSelectedDossierId = null;
 
-let userProfile = JSON.parse(localStorage.getItem('voda_user_profile')) || { name: "Byaombe Alembe", phone: "+243000000000" };
+let userProfile = JSON.parse(localStorage.getItem('voda_user_profile')) || { name: "Byaombe Alembe", phone: "+243000000000", email: "" };
+let isAppApproved = localStorage.getItem('voda_app_approved') === 'true';
+let pendingIdentities = JSON.parse(localStorage.getItem('voda_pending_identities')) || null;
+
 let demandes = [];
 let chatStore = {};
 let activeChatClientPhone = userProfile.phone;
@@ -498,6 +554,7 @@ function playClickSound() {
 
 window.onload = function() {
   chargerProfileUI();
+  verifierEtatApprobationUI();
   initialiserListenersFirebase();
 };
 
@@ -522,7 +579,127 @@ function initialiserListenersFirebase() {
     const data = snapshot.val();
     chatStore = data || {};
     rafraichirChat();
+    verifierApprobationTempsReel();
   });
+}
+
+function changerMethodeApprobationUI() {
+  const method = document.getElementById('approvalMethodSelect').value;
+  const emailContainer = document.getElementById('emailInputContainer');
+  if (method === '2') {
+    emailContainer.style.display = 'block';
+  } else {
+    emailContainer.style.display = 'none';
+  }
+}
+
+function verifierEtatApprobationUI() {
+  const loginCard = document.getElementById('newcomerLoginCard');
+  const mainServices = document.getElementById('mainServicesContent');
+  
+  if (isAppApproved) {
+    loginCard.style.display = 'none';
+    mainServices.style.display = 'block';
+  } else {
+    mainServices.style.display = 'none';
+    loginCard.style.display = 'block';
+    if (pendingIdentities) {
+      document.getElementById('identityFormSection').style.display = 'none';
+      document.getElementById('approvalCodeSection').style.display = 'block';
+      document.getElementById('statusApprovalMsg').textContent = "Demande envoyée. En attente du code de l'agent...";
+      verifierReponseAgentEnDirect();
+    }
+  }
+}
+
+function verifierReponseAgentEnDirect() {
+  if (!userProfile.phone) return;
+  let sanitizedPhone = userProfile.phone.replace(/[.#$\/\[\]]/g, '_');
+  db.ref('voda_approvals/' + sanitizedPhone).on('value', (snapshot) => {
+    let approvalData = snapshot.val();
+    const box = document.getElementById('clientLiveAgentResponseBox');
+    if (approvalData) {
+      if (approvalData.agentReply) {
+        box.textContent = approvalData.agentReply;
+      } else {
+        box.textContent = "Demande reçue par l'agent. En attente de traitement...";
+      }
+    }
+  });
+}
+
+function soumettreIdentiteNouveauVenu() {
+  playClickSound();
+  const name = document.getElementById('loginNameInput').value.trim();
+  const phone = document.getElementById('loginPhoneInput').value.trim();
+  const method = document.getElementById('approvalMethodSelect').value;
+  let email = "";
+
+  if(!name || !phone) return afficherToast("Veuillez remplir vos identités !");
+
+  if (method === '2') {
+    email = document.getElementById('loginEmailInput').value.trim();
+    if(!email) return afficherToast("Veuillez remplir votre adresse email !");
+    
+    // Redirection vers client mail pour option 2
+    let sujet = encodeURIComponent("Demande d'approbation d'accès - Vodacom Agent Pro");
+    let corps = encodeURIComponent(`Bonjour l'Agent,\n\nJe souhaite obtenir l'approbation pour entrer dans l'application Vodacom Agent Pro.\n\nNom : ${name}\nTéléphone : ${phone}\nMon Email : ${email}\n\nVeuillez m'envoyer mon code d'approbation.\nMerci.`);
+    window.location.href = `mailto:Vodacomagentpro@gmail.com?subject=${sujet}&body=${corps}`;
+  }
+  
+  userProfile = { name: name, phone: phone, email: email };
+  localStorage.setItem('voda_user_profile', JSON.stringify(userProfile));
+  activeChatClientPhone = phone;
+  chargerProfileUI();
+
+  pendingIdentities = { name: name, phone: phone, email: email, method: method, timestamp: Date.now() };
+  localStorage.setItem('voda_pending_identities', JSON.stringify(pendingIdentities));
+
+  // Envoyer automatiquement les identités dans le chat pour l'agent (Option 1 ou traçabilité globale)
+  let sanitizedPhone = phone.replace(/[.#$\/\[\]]/g, '_');
+  let msgs = chatStore[sanitizedPhone] || [];
+  msgs.push({ sender: name, text: `[NOUVEAU VENU - Option ${method}] Demande d'approbation.\nNom : ${name}\nTéléphone : ${phone}` + (email ? `\nEmail : ${email}` : '') });
+  
+  db.ref('voda_chats/' + sanitizedPhone).set(msgs, (error) => {
+    if(!error) {
+      document.getElementById('identityFormSection').style.display = 'none';
+      document.getElementById('approvalCodeSection').style.display = 'block';
+      document.getElementById('statusApprovalMsg').textContent = "Demande transmise avec succès ! En attente du code...";
+      verifierReponseAgentEnDirect();
+      afficherToast("Demande d'approbation envoyée !");
+    }
+  });
+}
+
+function validerCodeApprobation() {
+  playClickSound();
+  const enteredCode = document.getElementById('approvalCodeInput').value.trim();
+  let sanitizedPhone = userProfile.phone.replace(/[.#$\/\[\]]/g, '_');
+  
+  db.ref('voda_approvals/' + sanitizedPhone).once('value', (snapshot) => {
+    let approvalData = snapshot.val();
+    if(approvalData && String(approvalData.code).trim() === enteredCode) {
+      isAppApproved = true;
+      localStorage.setItem('voda_app_approved', 'true');
+      localStorage.removeItem('voda_pending_identities');
+      verifierEtatApprobationUI();
+      afficherToast("Accès approuvé ! Bienvenue dans l'application.");
+    } else {
+      afficherToast("Code d'approbation incorrect !");
+    }
+  });
+}
+
+function verifierApprobationTempsReel() {
+  if (!isAppApproved && userProfile.phone) {
+    let sanitizedPhone = userProfile.phone.replace(/[.#$\/\[\]]/g, '_');
+    db.ref('voda_approvals/' + sanitizedPhone).once('value', (snapshot) => {
+      let approvalData = snapshot.val();
+      if(approvalData && approvalData.approved) {
+        // Optionnel
+      }
+    });
+  }
 }
 
 function chargerProfileUI() {
@@ -578,7 +755,7 @@ function sauvegarderProfile() {
   const p = document.getElementById('profilePhoneInput').value.trim();
   if(!n || !p) return afficherToast("Veuillez remplir tous les champs !");
   
-  userProfile = { name: n, phone: p };
+  userProfile = { ...userProfile, name: n, phone: p };
   localStorage.setItem('voda_user_profile', JSON.stringify(userProfile));
   activeChatClientPhone = p;
   chargerProfileUI();
@@ -591,6 +768,9 @@ function fermerSidebar() { document.getElementById('sidebar').classList.remove('
 
 function verrouillerApp() {
   fermerSidebar();
+  isAppApproved = false;
+  localStorage.setItem('voda_app_approved', 'false');
+  verifierEtatApprobationUI();
   afficherToast("Application verrouillée.");
 }
 
@@ -617,6 +797,7 @@ function gererClicBoutonAgent() {
     document.getElementById('roleToggle').textContent = "🔄 Mode : CLIENT";
     document.getElementById('navAgentBtn').style.display = "none";
     document.getElementById('agentClientSelectorContainer').style.display = "none";
+    document.getElementById('agentApprovalPanel').style.display = "none";
     naviguer('sec-services', document.querySelector('nav button'));
     afficherToast("Basculement en mode client.");
   } else {
@@ -634,8 +815,10 @@ function verifierEtBasculerAgent() {
   document.getElementById('roleToggle').textContent = "🛡️ Mode : AGENT";
   document.getElementById('navAgentBtn').style.display = "flex";
   document.getElementById('agentClientSelectorContainer').style.display = "block";
+  document.getElementById('agentApprovalPanel').style.display = "block";
   fermerModalAgent();
   peuplerSelectClientsAgent();
+  mettreAJourPanneauApprobationAgent();
   naviguer('sec-agent', document.getElementById('navAgentBtn'));
   afficherToast("Mode Agent activé avec succès !");
 }
@@ -724,6 +907,43 @@ function rafraichirChat() {
     </div>
   `).join('');
   box.scrollTop = box.scrollHeight;
+  if(currentRole === 'AGENT') {
+    mettreAJourPanneauApprobationAgent();
+  }
+}
+
+function mettreAJourPanneauApprobationAgent() {
+  const infoDisplay = document.getElementById('agentNewcomerInfoDisplay');
+  if(!infoDisplay) return;
+  let msgs = getActiveChatMessages();
+  let foundNewcomerMsg = msgs.find(m => m.text && m.text.includes('[NOUVEAU VENU'));
+  if(foundNewcomerMsg) {
+    infoDisplay.innerHTML = `<strong style="color:var(--success);">Client actif :</strong><br>${foundNewcomerMsg.text.replace(/\n/g, '<br>')}`;
+  } else {
+    infoDisplay.textContent = `Aucune identité en attente pour le client actif (${activeChatClientPhone}).`;
+  }
+}
+
+function envoyerCodeApprobationAuNouveau() {
+  playClickSound();
+  const code = document.getElementById('agentGeneratedCodeInput').value.trim();
+  if(!code) return afficherToast("Veuillez saisir un code d'approbation !");
+  
+  let sanitizedPhone = activeChatClientPhone.replace(/[.#$\/\[\]]/g, '_');
+  let replyText = `Code d'approbation d'entrée : ${code}. Veuillez le saisir pour accéder à l'application.`;
+  
+  // Enregistrer le code d'approbation et la réponse textuelle visible dans la case dédiée sous le login
+  db.ref('voda_approvals/' + sanitizedPhone).set({ code: code, approved: false, agentReply: replyText }, (err) => {
+    if(!err) {
+      let msgs = [...getActiveChatMessages()];
+      msgs.push({ sender: "Agent", text: replyText });
+      db.ref('voda_chats/' + sanitizedPhone).set(msgs);
+      
+      // Si un email est enregistré, préparer aussi un lien mailto pour l'agent
+      afficherToast("Code d'approbation enregistré et envoyé avec succès !");
+      document.getElementById('agentGeneratedCodeInput').value = "";
+    }
+  });
 }
 
 function envoyerMessage() {
@@ -768,6 +988,10 @@ function peuplerSelectClientsAgent() {
   demandes.forEach(d => {
     if(d.clientPhone) clientsMap[d.clientPhone] = d.clientName || d.clientPhone;
   });
+  Object.keys(chatStore).forEach(key => {
+    let originalPhone = key.replace(/_/g, '.');
+    if(!clientsMap[originalPhone]) clientsMap[originalPhone] = originalPhone;
+  });
   clientsMap[userProfile.phone] = userProfile.name;
 
   sel.innerHTML = Object.entries(clientsMap).map(([phone, name]) => `<option value="${phone}" ${phone === activeChatClientPhone ? 'selected' : ''}>${name} (${phone})</option>`).join('');
@@ -776,6 +1000,7 @@ function peuplerSelectClientsAgent() {
 function changerClientActifChat(phone) {
   activeChatClientPhone = phone;
   rafraichirChat();
+  mettreAJourPanneauApprobationAgent();
 }
 
 function calculerStatsAgent() {
