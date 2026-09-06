@@ -52,6 +52,7 @@ display: flex; flex-direction: column; gap: 12px; overflow-y: auto;
 .btn-sec { background: #333; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-align: left; font-size: 0.85rem; }
 .btn-danger { background: var(--voda-red); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-align: left; font-size: 0.85rem; }
 .btn-success { background: var(--success); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+.btn-email { background: #2563eb; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 8px; }
 .btn-whatsapp { background: var(--whatsapp); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem; }
 
 /* CONTAINER PRINCIPAL */
@@ -191,7 +192,7 @@ display: flex; gap: 10px; width: 100%;
         <label style="margin-top:12px;">Méthode d'approbation :</label>
         <select id="approvalMethodSelect" onchange="changerMethodeApprobationUI()" style="margin-bottom: 12px;">
           <option value="1">1. Méthode intégrée (Chat de l'app)</option>
-          <option value="2">2. Envoyer la demande par Email (Vodacomagentpro@gmail.com)</option>
+          <option value="2">2. Envoyer la demande par Email (vodacomagentpro@gmail.com)</option>
         </select>
 
         <div id="emailInputContainer" style="display:none; margin-bottom: 12px;">
@@ -395,8 +396,9 @@ display: flex; gap: 10px; width: 100%;
     <div id="modalFields"></div>
     <div id="modalButtonsExtra" style="margin-top:15px;"></div>
     
-    <button onclick="soumettreDemande()" class="btn-success" style="margin-top:15px; margin-bottom:8px;">Envoyer</button>
-    <button onclick="fermerModal()" class="btn-sec" style="text-align:center;">Fermer</button>
+    <button onclick="soumettreDemande()" class="btn-success" style="margin-top:15px; margin-bottom:8px;">Envoyer via l'app</button>
+    <button onclick="envoyerRequeteParEmail()" class="btn-email">📧 Envoyer la requête par Email</button>
+    <button onclick="fermerModal()" class="btn-sec" style="margin-top:8px; text-align:center;">Fermer</button>
   </div>
 </div>
 
@@ -644,7 +646,7 @@ function soumettreIdentiteNouveauVenu() {
     // Redirection vers client mail pour option 2
     let sujet = encodeURIComponent("Demande d'approbation d'accès - Vodacom Agent Pro");
     let corps = encodeURIComponent(`Bonjour l'Agent,\n\nJe souhaite obtenir l'approbation pour entrer dans l'application Vodacom Agent Pro.\n\nNom : ${name}\nTéléphone : ${phone}\nMon Email : ${email}\n\nVeuillez m'envoyer mon code d'approbation.\nMerci.`);
-    window.location.href = `mailto:Vodacomagentpro@gmail.com?subject=${sujet}&body=${corps}`;
+    window.location.href = `mailto:vodacomagentpro@gmail.com?subject=${sujet}&body=${corps}`;
   }
   
   userProfile = { name: name, phone: phone, email: email };
@@ -1167,14 +1169,35 @@ function soumettreDemande() {
     db.ref('voda_dossiers/' + dossierId).set(nouvelleDemande, (error) => {
       document.getElementById('processingModal').style.display = "none";
       if (error) {
-        afficherToast("Imeshindwa kutuma. Angalia mtandao wako!");
+        afficherToast("Erreur lors de l'envoi. Vérifiez votre connexion !");
       } else {
-        afficherToast("Demande envoyée avec succès !");
+        afficherToast("Demande envoyée avec succès via l'app !");
         tonaJibuLaKiotomatikiKwaMteja(userProfile.phone, activeOptionName);
         fermerModal();
       }
     });
   }, 1000);
+}
+
+function envoyerRequeteParEmail() {
+  playClickSound();
+  const inputs = document.querySelectorAll('.custom-field');
+  let detailsText = "";
+  let valid = true;
+  
+  inputs.forEach(input => {
+    if(!input.value.trim()) valid = false;
+    detailsText += `- ${input.getAttribute('data-fieldname')} : ${input.value}\n`;
+  });
+
+  if(!valid) return afficherToast("Veuillez remplir tous les champs obligatoires pour l'e-mail !");
+
+  let sujet = encodeURIComponent(`Requête Service : ${activeOptionName} - Vodacom Agent Pro`);
+  let corps = encodeURIComponent(`Bonjour l'Agent,\n\nJe souhaite soumettre une requête pour le service suivant :\n\nService : ${activeOptionName}\nClient : ${userProfile.name}\nTéléphone : ${userProfile.phone}\n\nDétails de la requête :\n${detailsText}\n\nMerci de traiter ma demande.`);
+  
+  window.location.href = `mailto:vodacomagentpro@gmail.com?subject=${sujet}&body=${corps}`;
+  afficherToast("Préparation de l'e-mail pour vodacomagentpro@gmail.com...");
+  fermerModal();
 }
 
 function tonaJibuLaKiotomatikiKwaMteja(nambariYaMteja, jinaLaHuduma) {
