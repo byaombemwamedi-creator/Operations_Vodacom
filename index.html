@@ -12,136 +12,241 @@
 <!-- Firebase Realtime Database SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <style>
+/* ==========================================
+   1. VARIABLES & RESET
+   ================================---------- */
 :root {
---voda-red: #e60000;
---voda-dark: #121212;
---voda-card: #1e1e1e;
---voda-text: #ffffff;
---voda-muted: #aaa;
---border: #2a2a2a;
---success: #10b981;
---warning: #f59e0b;
---whatsapp: #25D366;
---facebook: #1877F2;
+  --voda-red: #e60000;
+  --voda-dark: #121212;
+  --voda-card: #1e1e1e;
+  --voda-text: #ffffff;
+  --voda-muted: #aaa;
+  --border: #2a2a2a;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --whatsapp: #25D366;
+  --facebook: #1877F2;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
-body { background-color: var(--voda-dark); color: var(--voda-text); padding-bottom: 75px; overflow-x: hidden; }
 
-/* HEADER & SIDEBAR */
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+  font-family: 'Segoe UI', Roboto, sans-serif; 
+}
+
+body { 
+  background-color: var(--voda-dark); 
+  color: var(--voda-text); 
+  padding-bottom: 75px; 
+  overflow-x: hidden; 
+}
+
+/* ==========================================
+   2. HEADER & NAVIGATION LATÉRALE (SIDEBAR)
+   ================================---------- */
 header {
-background: var(--voda-dark); padding: 12px 15px;
-display: flex; justify-content: space-between; align-items: center;
-border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+  background: var(--voda-dark); 
+  padding: 12px 15px;
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  border-bottom: 1px solid var(--border); 
+  position: sticky; 
+  top: 0; 
+  z-index: 100;
 }
-header h1 { font-size: 0.85rem; font-weight: 600; color: var(--voda-muted); }
-.sidebar-overlay {
-position: fixed; top:0; left:0; right:0; bottom:0;
-background: rgba(0,0,0,0.8); z-index: 200; display: none;
-}
-.sidebar {
-position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
-background: #181818; border-right: 1px solid var(--border);
-z-index: 300; transition: left 0.3s ease; padding: 20px;
-display: flex; flex-direction: column; gap: 12px; overflow-y: auto;
-}
-.sidebar.open { left: 0; }
-.profile-card { background: var(--voda-card); padding: 15px; border-radius: 10px; text-align: center; }
-.avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--voda-red); margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
 
-/* BTNS & INPUTS */
+header h1 { 
+  font-size: 0.85rem; 
+  font-weight: 600; 
+  color: var(--voda-muted); 
+}
+
+.sidebar-overlay {
+  position: fixed; 
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8); 
+  z-index: 200; 
+  display: none;
+}
+
+.sidebar {
+  position: fixed; 
+  top: 0; 
+  left: -280px; 
+  width: 280px; 
+  height: 100%;
+  background: #181818; 
+  border-right: 1px solid var(--border);
+  z-index: 300; 
+  transition: left 0.3s ease; 
+  padding: 20px;
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; 
+  overflow-y: auto;
+}
+
+.sidebar.open { left: 0; }
+
+.profile-card { 
+  background: var(--voda-card); 
+  padding: 15px; 
+  border-radius: 10px; 
+  text-align: center; 
+}
+
+.avatar { 
+  width: 50px; 
+  height: 50px; 
+  border-radius: 50%; 
+  background: var(--voda-red); 
+  margin: 0 auto 10px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 1.3rem; 
+}
+
+/* ==========================================
+   3. BOUTONS & CHAMPS DE SAISIE
+   ================================---------- */
 .btn-sec { background: #333; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-align: left; font-size: 0.85rem; }
 .btn-danger { background: var(--voda-red); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-align: left; font-size: 0.85rem; }
 .btn-success { background: var(--success); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+.btn-primary { background: var(--voda-red); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
 .btn-email { background: #2563eb; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 8px; }
 .btn-whatsapp { background: var(--whatsapp); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem; }
 
-/* CONTAINER PRINCIPAL */
+/* ==========================================
+   4. LAYOUT & CONTENEUR PRINCIPAL
+   ================================---------- */
 .container { padding: 15px; max-width: 500px; margin: 0 auto; }
 .section { display: none; }
 .section.active { display: block; }
 
-/* CARDS & MODALS */
-.card { background: var(--voda-card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 12px; }
-.card label { display: block; font-size: 0.85rem; margin-top: 10px; margin-bottom: 5px; color: var(--voda-muted); }
-.card input, .card select, .card textarea { width: 100%; padding: 10px; background: #222; border: 1px solid var(--border); color: white; border-radius: 6px; }
+.card { 
+  background: var(--voda-card); 
+  padding: 20px; 
+  border-radius: 12px; 
+  border: 1px solid var(--border); 
+  margin-bottom: 12px; 
+}
 
-/* BANNIÈRE D'ACCUEIL */
+.card label { 
+  display: block; 
+  font-size: 0.85rem; 
+  margin-top: 10px; 
+  margin-bottom: 5px; 
+  color: var(--voda-muted); 
+}
+
+.card input, .card select, .card textarea { 
+  width: 100%; 
+  padding: 10px; 
+  background: #222; 
+  border: 1px solid var(--border); 
+  color: white; 
+  border-radius: 6px; 
+}
+
+/* ==========================================
+   5. COMPOSANTS SPÉCIFIQUES (ACCUEIL & SERVICES)
+   ================================---------- */
 .welcome-banner {
-background: var(--voda-red);
-border-radius: 12px;
-padding: 15px;
-margin-bottom: 20px;
+  background: var(--voda-red);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
 }
 .welcome-banner h2 { font-size: 1.2rem; font-weight: bold; margin-bottom: 4px; }
 .welcome-banner p { font-size: 0.85rem; opacity: 0.9; }
 
 .services-header {
-display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
 }
 .services-header h2 { font-size: 1.5rem; font-weight: 800; line-height: 1.1; }
 
 .search-box {
-width: 100%; padding: 12px 15px; background: #222; border: 1px solid var(--border);
-border-radius: 8px; color: white; margin-bottom: 15px; font-size: 0.9rem;
+  width: 100%; padding: 12px 15px; background: #222; border: 1px solid var(--border);
+  border-radius: 8px; color: white; margin-bottom: 15px; font-size: 0.9rem;
 }
 
 .services-grid {
-display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
 }
+
 .service-btn-card {
-background: var(--voda-red);
-border-radius: 12px;
-padding: 20px 10px;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-text-align: center;
-cursor: pointer;
-box-shadow: 0 4px 10px rgba(230, 0, 0, 0.2);
-transition: transform 0.15s ease;
+  background: var(--voda-red);
+  border-radius: 12px;
+  padding: 20px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(230, 0, 0, 0.2);
+  transition: transform 0.15s ease;
 }
 .service-btn-card:active { transform: scale(0.96); }
+
 .service-btn-card .icon-box {
-background: white; border-radius: 8px; padding: 6px;
-display: flex; align-items: center; justify-content: center;
-margin-bottom: 10px; width: 42px; height: 42px; font-size: 1.4rem;
+  background: white; border-radius: 8px; padding: 6px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px; width: 42px; height: 42px; font-size: 1.4rem;
 }
+
 .service-btn-card span {
-font-size: 0.85rem; font-weight: bold; color: white; line-height: 1.2;
+  font-size: 0.85rem; font-weight: bold; color: white; line-height: 1.2;
 }
 
 .pro-badge-box {
-background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
-border: 1px solid var(--voda-red);
-padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.8rem;
+  background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+  border: 1px solid var(--voda-red);
+  padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.8rem;
 }
 
+/* ==========================================
+   6. MODALS & VISIONNEUSE D'IMAGE
+   ================================---------- */
+#imageModal {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85); z-index: 10000;
+  display: none; align-items: center; justify-content: center; padding: 20px;
+}
+
+.image-viewer-card {
+  background: var(--voda-card); border: 1px solid var(--voda-red);
+  border-radius: 12px; padding: 15px; max-width: 380px; width: 100%;
+  display: flex; flex-direction: column; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.image-viewer-card img {
+  max-width: 100%; max-height: 55vh; border-radius: 8px; object-fit: contain; margin-bottom: 15px; border: 1px solid var(--border);
+}
+
+.image-actions {
+  display: flex; gap: 10px; width: 100%;
+}
+
+.btn-dl { background: var(--success); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; flex: 1; cursor: pointer; text-align: center; text-decoration: none; font-size: 0.85rem; }
+.btn-close-img { background: var(--voda-red); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; flex: 1; cursor: pointer; font-size: 0.85rem; }
+
+/* ==========================================
+   7. ANIMATIONS
+   ================================---------- */
 @keyframes spinDots {
-0% { transform: rotate(0deg); }
-100% { transform: rotate(360deg); }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 .spinner-ring { animation: spinDots 1s linear infinite; }
 
-/* MODAL VISIONNEUSE D'IMAGE */
-#imageModal {
-position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-background: rgba(0,0,0,0.85); z-index: 10000;
-display: none; align-items: center; justify-content: center; padding: 20px;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
-.image-viewer-card {
-background: var(--voda-card); border: 1px solid var(--voda-red);
-border-radius: 12px; padding: 15px; max-width: 380px; width: 100%;
-display: flex; flex-direction: column; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-}
-.image-viewer-card img {
-max-width: 100%; max-height: 55vh; border-radius: 8px; object-fit: contain; margin-bottom: 15px; border: 1px solid var(--border);
-}
-.image-actions {
-display: flex; gap: 10px; width: 100%;
-}
-.btn-dl { background: var(--success); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; flex: 1; cursor: pointer; text-align: center; text-decoration: none; font-size: 0.85rem; }
-.btn-close-img { background: var(--voda-red); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; flex: 1; cursor: pointer; font-size: 0.85rem; }
 </style>
 </head>
 <body>
@@ -160,6 +265,7 @@ display: flex; gap: 10px; width: 100%;
   <button onclick="ouvrirModalGuide()" class="btn-sec">📖 Comment utiliser l'app</button>
   <button onclick="gererClicBoutonAgent()" class="btn-sec" id="roleToggle">🔄 Mode : CLIENT</button>
   <button onclick="verrouillerApp()" class="btn-danger">🔒 Verrouiller l'application</button>
+  <button onclick="deconnecterUtilisateur()" class="btn-danger" style="background:#d97706;">🚪 Changer d'utilisateur</button>
 </div>
 
 <!-- HEADER TOP -->
@@ -176,48 +282,61 @@ display: flex; gap: 10px; width: 100%;
 <div id="toast" style="display:none; position:fixed; top:70px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:10px 20px; border-radius:5px; z-index:500; font-size:0.9rem; border: 1px solid var(--voda-red);">Notification</div>
 
 <div class="container">
+  
   <!-- 1. PAGE ACCUEIL / LOGIN APPROVAL -->
   <div id="sec-services" class="section active">
+    
     <!-- CARTE LOGIN / ENREGISTREMENT NOUVEAU VENU -->
     <div id="newcomerLoginCard" class="card" style="border: 2px solid var(--voda-red); margin-bottom: 20px;">
       <h3 style="color: var(--voda-red); margin-bottom: 8px;">🔐 Espace d'Authentification</h3>
       <p style="font-size: 0.8rem; color: var(--voda-muted); margin-bottom: 12px;">Choisissez votre méthode d'approbation pour entrer dans l'application.</p>
       
+      <!-- FORMULAIRE -->
       <div id="identityFormSection">
         <label>Nom complet :</label>
         <input type="text" id="loginNameInput" placeholder="Ex: Jean Paul">
+        
         <label>Numéro de téléphone :</label>
         <input type="text" id="loginPhoneInput" placeholder="Ex: +243...">
+        
+        <div id="emailInputContainer" style="display:none; margin-top: 10px;">
+          <label>Votre adresse email (pour recevoir le code) :</label>
+          <input type="email" id="loginEmailInput" placeholder="Ex: monemail@gmail.com">
+        </div>
         
         <label style="margin-top:12px;">Méthode d'approbation :</label>
         <select id="approvalMethodSelect" onchange="changerMethodeApprobationUI()" style="margin-bottom: 12px;">
           <option value="1">1. Méthode intégrée (Chat de l'app)</option>
           <option value="2">2. Envoyer la demande par Email (vodacomagentpro@gmail.com)</option>
         </select>
-
-        <div id="emailInputContainer" style="display:none; margin-bottom: 12px;">
-          <label>Votre adresse email (pour recevoir le code) :</label>
-          <input type="email" id="loginEmailInput" placeholder="Ex: monemail@gmail.com">
-        </div>
-
-        <button onclick="soumettreIdentiteNouveauVenu()" class="btn-success" style="margin-top: 12px;">Soumettre ma demande d'approbation</button>
+        
+        <!-- Bouton de soumission -->
+        <button onclick="soumettreIdentiteNouveauVenu()" class="btn-success" id="btnSoumettreAuth">Soumettre ma demande d'approbation</button>
       </div>
 
-      <div id="approvalCodeSection" style="display:none; margin-top: 15px; background: #222; padding: 12px; border-radius: 8px;">
-        <p style="font-size: 0.85rem; color: var(--success); margin-bottom: 8px;" id="statusApprovalMsg">Demande envoyée. En attente du code de l'agent...</p>
-        
-        <!-- CASE DE RÉPONSE DE L'AGENT INTÉGRÉE SOUS LE LOGIN -->
-        <div id="agentResponseBoxContainer" style="background:#181818; border:1px solid var(--voda-red); padding:10px; border-radius:6px; margin-bottom:12px;">
-          <label style="color:var(--voda-red); margin-top:0;">Boîte de réponse de l'Agent :</label>
-          <div id="clientLiveAgentResponseBox" style="font-size:0.85rem; color:#38bdf8; min-height:30px; padding:5px 0;">En attente de communication avec l'agent...</div>
-        </div>
-
-        <label>Code d'entrée (reçu de l'agent) :</label>
-        <input type="text" id="approvalCodeInput" placeholder="Ex: 123456" style="margin-bottom: 8px;">
-        <button onclick="validerCodeApprobation()" class="btn-success">Entrer dans l'application</button>
+      <!-- SPINNER / CHARGEMENT (Caché par défaut) -->
+      <div id="authLoadingSpinner" style="display: none; text-align: center; padding: 20px;">
+        <div class="spinner" style="border: 4px solid rgba(255, 255, 255, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: var(--voda-red); animation: spin 1s linear infinite; margin: 0 auto 10px auto;"></div>
+        <p style="font-size: 0.85rem; color: var(--voda-muted);" id="loadingText">Traitement de votre demande en cours...</p>
       </div>
     </div>
 
+    <!-- SECTION CODE D'APPROBATION -->
+    <div id="approvalCodeSection" style="display:none; margin-top: 15px; background: #222; padding: 12px; border-radius: 8px;">
+      <p style="font-size: 0.85rem; color: var(--success); margin-bottom: 8px;" id="statusApprovalMsg">Demande envoyée. En attente du code de l'agent...</p>
+      
+      <!-- BOÎTE DE RÉPONSE DE L'AGENT -->
+      <div id="agentResponseBoxContainer" style="background:#181818; border:1px solid var(--voda-red); padding:10px; border-radius:6px; margin-bottom:12px;">
+        <label style="color:var(--voda-red); margin-top:0;">Boîte de réponse de l'Agent :</label>
+        <div id="clientLiveAgentResponseBox" style="font-size:0.85rem; color:#38bdf8; min-height:30px; padding:5px 0;">En attente de communication avec l'agent...</div>
+      </div>
+
+      <label>Code d'entrée (reçu de l'agent) :</label>
+      <input type="text" id="approvalCodeInput" placeholder="Ex: 123456" style="margin-bottom: 8px;">
+      <button onclick="validerCodeApprobation()" class="btn-success">Entrer dans l'application</button>
+    </div>
+
+    <!-- SERVICES PRINCIPAUX (Masqués tant que non approuvé) -->
     <div id="mainServicesContent" style="display:none;">
       <div class="welcome-banner">
         <h2 id="welcomeUserName">Bonjour Byaombe Alembe ! 👋</h2>
@@ -256,7 +375,6 @@ display: flex; gap: 10px; width: 100%;
           <div class="icon-box">📱</div>
           <span>Creation sim swappette</span>
         </div>
-    
         <div class="service-btn-card" onclick="ouvrirOption('Creation gestion des enfants')">
           <div class="icon-box">🎮</div>
           <span>Creation gestion des enfants</span>
@@ -273,17 +391,14 @@ display: flex; gap: 10px; width: 100%;
           <div class="icon-box">🔑</div>
           <span>Reset pin IRM</span>
         </div>
-        
         <div class="service-btn-card" onclick="ouvrirOption('Deblocage pin mpesa')">
           <div class="icon-box">🔓</div>
           <span>Deblocage pin mpesa</span>
         </div>
-        
         <div class="service-btn-card" onclick="ouvrirOption('Reset pin vodae')">
           <div class="icon-box">🔒</div>
           <span>Reset pin vodae</span>
         </div>
-        
         <div class="service-btn-card" onclick="ouvrirOption('Reset pin gestion des enfants')">
           <div class="icon-box">👨‍👦</div>
           <span>Reset pin gestion des enfants</span>
@@ -309,7 +424,7 @@ display: flex; gap: 10px; width: 100%;
       <select id="agentSelectClientTarget" onchange="changerClientActifChat(this.value)" style="width:100%; padding:8px; background:#222; border:1px solid var(--border); color:#fff; border-radius:6px;"></select>
     </div>
 
-    <!-- PANNEAU AGENT POUR APPROUVER ET ENVOYER LE CODE -->
+    <!-- PANNEAU AGENT -->
     <div id="agentApprovalPanel" style="display:none;" class="card">
       <h4 style="color:var(--voda-red); font-size:0.9rem; margin-bottom:6px;">🛡️ Approuver l'entrée du nouveau</h4>
       <p style="font-size:0.8rem; color:#ddd; margin-bottom:8px;" id="agentNewcomerInfoDisplay">Identités du nouveau client s'afficheront ici.</p>
@@ -353,7 +468,6 @@ display: flex; gap: 10px; width: 100%;
         </div>
       </div>
       
-      <!-- EXPORT REPORT BTNS -->
       <div style="margin-top: 15px; display: flex; gap: 8px;">
         <button onclick="copierRapportJour()" class="btn-sec" style="text-align:center; flex:1;">📋 Copier Rapport</button>
         <a id="whatsappReportBtn" href="#" target="_blank" class="btn-whatsapp" style="flex:1;">📤 WhatsApp PDF</a>
@@ -363,9 +477,11 @@ display: flex; gap: 10px; width: 100%;
     <h3 style="margin: 15px 0 10px 0; font-size:1.1rem;">Commandes Reçues</h3>
     <div id="agentOrdersList" style="margin-top: 5px; color: var(--voda-muted);">Aucune commande en attente.</div>
   </div>
+
 </div>
 
-<!-- MODAL GUIDE D'UTILISATION -->
+<!-- MODALS -->
+<!-- MODAL GUIDE -->
 <div id="modalGuide" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); padding:20px; z-index:400; overflow-y:auto;">
   <div class="card" style="margin-top: 20px;">
     <h3 style="color:var(--voda-red); margin-bottom:10px;">📖 Comment utiliser l'app</h3>
@@ -379,7 +495,7 @@ display: flex; gap: 10px; width: 100%;
   </div>
 </div>
 
-<!-- MODAL FORMULAIRE + PAIEMENT (0811301919) -->
+<!-- MODAL FORMULAIRE + PAIEMENT -->
 <div id="modalDemande" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); padding:20px; z-index:200; overflow-y:auto;">
   <div class="card" style="margin-top: 20px;">
     <h3 id="modalTitle" style="color: var(--voda-red);">Titre de l'option</h3>
@@ -415,7 +531,7 @@ display: flex; gap: 10px; width: 100%;
   </div>
 </div>
 
-<!-- MODAL MODIFICATION PIN / MOT DE PASSE -->
+<!-- MODAL PIN / MOT DE PASSE -->
 <div id="modalChangementPin" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); padding:20px; z-index:400;">
   <div class="card" style="margin-top: 40px;">
     <h3 style="color:var(--voda-red);">🔑 Modifier PIN / Mot de passe</h3>
@@ -428,7 +544,7 @@ display: flex; gap: 10px; width: 100%;
   </div>
 </div>
 
-<!-- MODAL TRAITEMENT AGENT (RÉPONDRE / VALIDÉ / REJETÉ) -->
+<!-- MODAL TRAITEMENT AGENT -->
 <div id="modalActionAgentDossier" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); padding:20px; z-index:500;">
   <div class="card" style="margin-top: 30px;">
     <h3 style="color:var(--voda-red);">Gérer le dossier</h3>
@@ -445,7 +561,7 @@ display: flex; gap: 10px; width: 100%;
   </div>
 </div>
 
-<!-- MODAL TRAITEMENT -->
+<!-- MODAL CHARGEMENT GLOBAL -->
 <div id="processingModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); z-index:9999; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
     <div style="position:relative; display:flex; align-items:center; justify-content:center; margin-bottom:20px;">
         <div class="spinner-ring" style="width:70px; height:70px; border:4px solid rgba(230,0,0,0.2); border-top-color:var(--voda-red); border-radius:50%;"></div>
@@ -506,11 +622,15 @@ const firebaseConfig = {
   appId: "1:122735100:web:b56464316f26e2577c0a79",
   measurementId: "G-SNKWS3CWHC"
 };
-// Initialize Firebase
+
+// Initialize Firebase with optimized offline persistence cache
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
+try {
+  db.goOnline();
+} catch(e) {}
 
 const optionsDetails = {
   "Ouverture compte mpesa": { price: "Gratuit", fields: [{name: "numero", type: "text"}], buttons: ["Carte d'Électeur"] },
@@ -541,6 +661,9 @@ let chatStore = {};
 let activeChatClientPhone = userProfile.phone;
 let unreadMessagesCount = 0;
 
+// ==========================================
+// UTILITAIRES & SONS
+// ==========================================
 function playClickSound() {
   try {
     let ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -560,8 +683,12 @@ window.onload = function() {
   initialiserListenersFirebase();
 };
 
+// ==========================================
+// FIREBASE LISTENERS OPTIMISÉS (LIMITES & PAGINATION)
+// ==========================================
 function initialiserListenersFirebase() {
-  db.ref('voda_dossiers').on('value', (snapshot) => {
+  // Limiter à 50 éléments récents pour éviter la surcharge réseau
+  db.ref('voda_dossiers').limitToLast(50).on('value', (snapshot) => {
     const data = snapshot.val();
     demandes = [];
     if (data) {
@@ -577,6 +704,7 @@ function initialiserListenersFirebase() {
     }
   });
 
+  // Chargement optimisé par chat actif ou global allégé
   db.ref('voda_chats').on('value', (snapshot) => {
     const data = snapshot.val();
     chatStore = data || {};
@@ -585,6 +713,9 @@ function initialiserListenersFirebase() {
   });
 }
 
+// ==========================================
+// AUTHENTIFICATION & APPROBATION
+// ==========================================
 function changerMethodeApprobationUI() {
   const method = document.getElementById('approvalMethodSelect').value;
   const emailContainer = document.getElementById('emailInputContainer');
@@ -643,12 +774,15 @@ function soumettreIdentiteNouveauVenu() {
     email = document.getElementById('loginEmailInput').value.trim();
     if(!email) return afficherToast("Veuillez remplir votre adresse email !");
     
-    // Redirection vers client mail pour option 2
     let sujet = encodeURIComponent("Demande d'approbation d'accès - Vodacom Agent Pro");
     let corps = encodeURIComponent(`Bonjour l'Agent,\n\nJe souhaite obtenir l'approbation pour entrer dans l'application Vodacom Agent Pro.\n\nNom : ${name}\nTéléphone : ${phone}\nMon Email : ${email}\n\nVeuillez m'envoyer mon code d'approbation.\nMerci.`);
     window.location.href = `mailto:vodacomagentpro@gmail.com?subject=${sujet}&body=${corps}`;
   }
   
+  document.getElementById('identityFormSection').style.display = 'none';
+  const spinnerContainer = document.getElementById('authLoadingSpinner');
+  if(spinnerContainer) spinnerContainer.style.display = 'block';
+
   userProfile = { name: name, phone: phone, email: email };
   localStorage.setItem('voda_user_profile', JSON.stringify(userProfile));
   activeChatClientPhone = phone;
@@ -657,18 +791,21 @@ function soumettreIdentiteNouveauVenu() {
   pendingIdentities = { name: name, phone: phone, email: email, method: method, timestamp: Date.now() };
   localStorage.setItem('voda_pending_identities', JSON.stringify(pendingIdentities));
 
-  // Envoyer automatiquement les identités dans le chat pour l'agent (Option 1 ou traçabilité globale)
   let sanitizedPhone = phone.replace(/[.#$\/\[\]]/g, '_');
   let msgs = chatStore[sanitizedPhone] || [];
   msgs.push({ sender: name, text: `[NOUVEAU VENU - Option ${method}] Demande d'approbation.\nNom : ${name}\nTéléphone : ${phone}` + (email ? `\nEmail : ${email}` : '') });
   
   db.ref('voda_chats/' + sanitizedPhone).set(msgs, (error) => {
+    if(spinnerContainer) spinnerContainer.style.display = 'none';
+
     if(!error) {
-      document.getElementById('identityFormSection').style.display = 'none';
       document.getElementById('approvalCodeSection').style.display = 'block';
       document.getElementById('statusApprovalMsg').textContent = "Demande transmise avec succès ! En attente du code...";
       verifierReponseAgentEnDirect();
       afficherToast("Demande d'approbation envoyée !");
+    } else {
+      document.getElementById('identityFormSection').style.display = 'block';
+      afficherToast("Erreur lors de l'envoi de la demande.");
     }
   });
 }
@@ -678,32 +815,52 @@ function validerCodeApprobation() {
   const enteredCode = document.getElementById('approvalCodeInput').value.trim();
   let sanitizedPhone = userProfile.phone.replace(/[.#$\/\[\]]/g, '_');
   
+  const btn = document.querySelector('.btn-success') || event.target;
+  const originalText = btn.innerHTML;
+  btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Vérification...`;
+  btn.disabled = true;
+
   db.ref('voda_approvals/' + sanitizedPhone).once('value', (snapshot) => {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+
     let approvalData = snapshot.val();
     if(approvalData && String(approvalData.code).trim() === enteredCode) {
       isAppApproved = true;
       localStorage.setItem('voda_app_approved', 'true');
       localStorage.removeItem('voda_pending_identities');
       verifierEtatApprobationUI();
-      afficherToast("Accès approuvé ! Bienvenue dans l'application.");
+      afficherToast("Accès approuvé ! Bienvenue.");
     } else {
       afficherToast("Code d'approbation incorrect !");
     }
+  }).catch((error) => {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+    afficherToast("Erreur de connexion.");
   });
 }
 
 function verifierApprobationTempsReel() {
   if (!isAppApproved && userProfile.phone) {
     let sanitizedPhone = userProfile.phone.replace(/[.#$\/\[\]]/g, '_');
+    const responseBox = document.getElementById('clientLiveAgentResponseBox');
+    
     db.ref('voda_approvals/' + sanitizedPhone).once('value', (snapshot) => {
       let approvalData = snapshot.val();
       if(approvalData && approvalData.approved) {
-        // Optionnel
+        isAppApproved = true;
+        localStorage.setItem('voda_app_approved', 'true');
+        verifierEtatApprobationUI();
+        afficherToast("Approbation détectée !");
       }
     });
   }
 }
 
+// ==========================================
+// GESTION DU PROFIL & PARAMÈTRES
+// ==========================================
 function chargerProfileUI() {
   document.getElementById('welcomeUserName').innerText = `Bonjour ${userProfile.name} ! 👋`;
   document.getElementById('sidebarProfileName').innerText = userProfile.name;
@@ -740,7 +897,7 @@ function sauvegarderNouveauPin() {
     localStorage.setItem('voda_client_pass', newPass);
   }
   fermerModalChangementPin();
-  afficherToast("Paramètres de sécurité mis à jour !");
+  afficherToast("Paramètres mis à jour !");
 }
 
 function ouvrirModalGuide() {
@@ -762,7 +919,7 @@ function sauvegarderProfile() {
   activeChatClientPhone = p;
   chargerProfileUI();
   fermerProfilModal();
-  afficherToast("Profil mis à jour avec succès !");
+  afficherToast("Profil mis à jour !");
 }
 
 function ouvrirSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').style.display = 'block'; }
@@ -792,6 +949,9 @@ function naviguer(secId, btn) {
   }
 }
 
+// ==========================================
+// GESTION MODE AGENT
+// ==========================================
 function gererClicBoutonAgent() {
   fermerSidebar();
   if (currentRole === "AGENT") {
@@ -822,9 +982,12 @@ function verifierEtBasculerAgent() {
   peuplerSelectClientsAgent();
   mettreAJourPanneauApprobationAgent();
   naviguer('sec-agent', document.getElementById('navAgentBtn'));
-  afficherToast("Mode Agent activé avec succès !");
+  afficherToast("Mode Agent activé !");
 }
 
+// ==========================================
+// SERVICES & MODAUX DE DEMANDE
+// ==========================================
 function ouvrirOption(optionName) {
   playClickSound();
   activeOptionName = optionName;
@@ -888,7 +1051,9 @@ function ouvrirModalImage(src) {
 function fermerModalImage() { document.getElementById('imageModal').style.display = "none"; }
 function fermerModalImageBg(event) { if(event.target.id === 'imageModal') fermerModalImage(); }
 
-// CHAT ISOLATION & NOTIFICATIONS
+// ==========================================
+// CHAT & NOTIFICATIONS
+// ==========================================
 function getActiveChatMessages() {
   let sanitizedPhone = activeChatClientPhone.replace(/[.#$\/\[\]]/g, '_');
   if(!chatStore[sanitizedPhone]) {
@@ -922,7 +1087,7 @@ function mettreAJourPanneauApprobationAgent() {
   if(foundNewcomerMsg) {
     infoDisplay.innerHTML = `<strong style="color:var(--success);">Client actif :</strong><br>${foundNewcomerMsg.text.replace(/\n/g, '<br>')}`;
   } else {
-    infoDisplay.textContent = `Aucune identité en attente pour le client actif (${activeChatClientPhone}).`;
+    infoDisplay.textContent = `Aucune identité en attente pour (${activeChatClientPhone}).`;
   }
 }
 
@@ -932,17 +1097,15 @@ function envoyerCodeApprobationAuNouveau() {
   if(!code) return afficherToast("Veuillez saisir un code d'approbation !");
   
   let sanitizedPhone = activeChatClientPhone.replace(/[.#$\/\[\]]/g, '_');
-  let replyText = `Code d'approbation d'entrée : ${code}. Veuillez le saisir pour accéder à l'application.`;
+  let replyText = `Code d'approbation d'entrée : ${code}. Veuillez le saisir.`;
   
-  // Enregistrer le code d'approbation et la réponse textuelle visible dans la case dédiée sous le login
   db.ref('voda_approvals/' + sanitizedPhone).set({ code: code, approved: false, agentReply: replyText }, (err) => {
     if(!err) {
       let msgs = [...getActiveChatMessages()];
       msgs.push({ sender: "Agent", text: replyText });
       db.ref('voda_chats/' + sanitizedPhone).set(msgs);
       
-      // Si un email est enregistré, préparer aussi un lien mailto pour l'agent
-      afficherToast("Code d'approbation enregistré et envoyé avec succès !");
+      afficherToast("Code envoyé avec succès !");
       document.getElementById('agentGeneratedCodeInput').value = "";
     }
   });
@@ -1005,6 +1168,9 @@ function changerClientActifChat(phone) {
   mettreAJourPanneauApprobationAgent();
 }
 
+// ==========================================
+// RAPPORTS & STATS
+// ==========================================
 function calculerStatsAgent() {
   let totalJour = demandes.reduce((s, d) => s + Number(d.amount || 0), 0);
   document.getElementById('statDay').innerText = totalJour.toLocaleString() + ' FC';
@@ -1019,9 +1185,12 @@ function copierRapportJour() {
   let totalJour = demandes.reduce((s, d) => s + Number(d.amount || 0), 0);
   let texteRapport = `RAPPORT VODACOM AGENT PRO\n- Total Dossiers : ${demandes.length}\n- Revenus Total : ${totalJour.toLocaleString()} FC\n- Date : ${new Date().toLocaleDateString()}`;
   navigator.clipboard.writeText(texteRapport);
-  afficherToast("Rapport copié dans le presse-papier !");
+  afficherToast("Rapport copié !");
 }
 
+// ==========================================
+// GESTION DES DOSSIERS & REQUÊTES
+// ==========================================
 function afficherDemandesClient(filterQuery = "") {
   const list = document.getElementById('clientOrdersList');
   if(!list) return;
@@ -1030,6 +1199,7 @@ function afficherDemandesClient(filterQuery = "") {
     list.innerHTML = `<div style="color:var(--voda-muted);">Aucune demande effectuée pour le moment.</div>`;
     return;
   }
+
   list.innerHTML = myDossiers.slice().reverse().map(d => `
     <div class="card" style="margin-bottom:10px;">
       <h4 style="color:var(--voda-red);">${d.service}</h4>
@@ -1064,7 +1234,7 @@ function afficherDemandesAgent() {
         </div>
       ` : ''}
       <p style="font-size:0.85rem; margin-top:8px;">Statut : <strong style="color:${d.status.includes('Validé') ? 'var(--success)' : d.status.includes('Rejeté') ? 'var(--voda-red)' : 'var(--warning)'};">${d.status}</strong></p>
-      <button onclick="ouvrirModalActionAgent(${d.id}, '${d.service}', '${d.clientName || 'Inconnu'}')" class="btn-sec" style="margin-top:10px; text-align:center; background:#222; border:1px solid var(--voda-red);">Gérer ce dossier (Validé, Rejeté, Répondre)</button>
+      <button onclick="ouvrirModalActionAgent(${d.id}, '${d.service}', '${d.clientName || 'Inconnu'}')" class="btn-sec" style="margin-top:10px; text-align:center; background:#222; border:1px solid var(--voda-red);">Gérer ce dossier</button>
     </div>
   `).join('');
 }
@@ -1084,7 +1254,6 @@ function fermerModalActionAgentDossier() {
 function soumettreActionAgentDossier(newStatus) {
   playClickSound();
   const reponseTxt = document.getElementById('agentDossierReponseInput').value.trim();
-  
   if(!currentSelectedDossierId) return;
 
   let updateData = { status: newStatus };
@@ -1146,37 +1315,34 @@ function soumettreDemande() {
   fermerModal();
   document.getElementById('processingModal').style.display = "flex";
 
-  setTimeout(() => {
-    let priceNum = 0;
-    let matchNum = optPriceStr.replace(/\D/g, '');
-    if(matchNum) priceNum = parseInt(matchNum);
+  let priceNum = 0;
+  let matchNum = optPriceStr.replace(/\D/g, '');
+  if(matchNum) priceNum = parseInt(matchNum);
 
-    let now = new Date();
-    let dossierId = Date.now();
-    let nouvelleDemande = {
-      id: dossierId,
-      clientPhone: userProfile.phone,
-      clientName: userProfile.name,
-      service: activeOptionName,
-      details: details,
-      images: images,
-      status: "En attente",
-      date: now.toLocaleDateString(),
-      rawDate: now.toISOString(),
-      amount: priceNum
-    };
+  let now = new Date();
+  let dossierId = Date.now();
+  let nouvelleDemande = {
+    id: dossierId,
+    clientPhone: userProfile.phone,
+    clientName: userProfile.name,
+    service: activeOptionName,
+    details: details,
+    images: images,
+    status: "En attente",
+    date: now.toLocaleDateString(),
+    rawDate: now.toISOString(),
+    amount: priceNum
+  };
 
-    db.ref('voda_dossiers/' + dossierId).set(nouvelleDemande, (error) => {
-      document.getElementById('processingModal').style.display = "none";
-      if (error) {
-        afficherToast("Erreur lors de l'envoi. Vérifiez votre connexion !");
-      } else {
-        afficherToast("Demande envoyée avec succès via l'app !");
-        tonaJibuLaKiotomatikiKwaMteja(userProfile.phone, activeOptionName);
-        fermerModal();
-      }
-    });
-  }, 1000);
+  db.ref('voda_dossiers/' + dossierId).set(nouvelleDemande, (error) => {
+    document.getElementById('processingModal').style.display = "none";
+    if (error) {
+      afficherToast("Erreur lors de l'envoi. Vérifiez votre connexion !");
+    } else {
+      afficherToast("Demande envoyée avec succès !");
+      tonaJibuLaKiotomatikiKwaMteja(userProfile.phone, activeOptionName);
+    }
+  });
 }
 
 function envoyerRequeteParEmail() {
@@ -1193,17 +1359,16 @@ function envoyerRequeteParEmail() {
   if(!valid) return afficherToast("Veuillez remplir tous les champs obligatoires pour l'e-mail !");
 
   let sujet = encodeURIComponent(`Requête Service : ${activeOptionName} - Vodacom Agent Pro`);
-  let corps = encodeURIComponent(`Bonjour l'Agent,\n\nJe souhaite soumettre une requête pour le service suivant :\n\nService : ${activeOptionName}\nClient : ${userProfile.name}\nTéléphone : ${userProfile.phone}\n\nDétails de la requête :\n${detailsText}\n\nMerci de traiter ma demande.`);
+  let corps = encodeURIComponent(`Bonjour l'Agent,\n\nJe souhaite soumettre une requête pour :\n\nService : ${activeOptionName}\nClient : ${userProfile.name}\nTéléphone : ${userProfile.phone}\n\nDétails :\n${detailsText}`);
   
   window.location.href = `mailto:vodacomagentpro@gmail.com?subject=${sujet}&body=${corps}`;
-  afficherToast("Préparation de l'e-mail pour vodacomagentpro@gmail.com...");
+  afficherToast("Préparation de l'e-mail...");
   fermerModal();
 }
 
 function tonaJibuLaKiotomatikiKwaMteja(nambariYaMteja, jinaLaHuduma) {
   if (!db) return;
-  
-  const ujumbeAuto = `Bonjour ! Votre demande pour "${jinaLaHuduma || 'cette opération'}" a bien été reçue. Un agent qualifié va la traiter dans un instant. Merci d'avoir choisi Vodacom Pro comme solution à vos besoins. Nous vous remercions pour votre confiance !`;
+  const ujumbeAuto = `Bonjour ! Votre demande pour "${jinaLaHuduma || 'cette opération'}" a bien été reçue. Un agent va la traiter. Merci pour votre confiance !`;
 
   let sanitizedPhone = nambariYaMteja.replace(/[.#$\/\[\]]/g, '_');
   let msgs = [...getActiveChatMessages()];
@@ -1212,8 +1377,11 @@ function tonaJibuLaKiotomatikiKwaMteja(nambariYaMteja, jinaLaHuduma) {
   db.ref('voda_chats/' + sanitizedPhone).set(msgs);
 }
 
+// ==========================================
+// SAUVEGARDE & BACKUP CHAT
+// ==========================================
 function futaMazungumzoPro() {
-  if (confirm("Je, una uhakika unataka kufuta mazungumzo haya?")) {
+  if (confirm("Voulez-vous vraiment effacer les messages de cette discussion ?")) {
     const kiboksiChaChat = document.getElementById('chatBox');
     if (kiboksiChaChat) kiboksiChaChat.innerHTML = "";
     
@@ -1221,7 +1389,7 @@ function futaMazungumzoPro() {
     chatStore[sanitizedPhone] = [];
     db.ref('voda_chats/' + sanitizedPhone).remove();
     
-    afficherToast("Mazungumzo yamefutwa kikamilifu.");
+    afficherToast("Discussion effacée.");
   }
 }
 
@@ -1229,9 +1397,9 @@ function hifadhiBackupChatPro() {
   try {
     const dataYaKuhifadhi = JSON.stringify(chatStore || {});
     localStorage.setItem('chat_backup_byao', dataYaKuhifadhi);
-    afficherToast("Backup imehifadhiwa kikamilifu");
+    afficherToast("Backup sauvegardé !");
   } catch (e) {
-    afficherToast("Imeshindwa kuhifadhi backup");
+    afficherToast("Échec de la sauvegarde.");
   }
 }
 
@@ -1241,14 +1409,34 @@ function rejeshaBackupChatPro() {
     try {
       chatStore = JSON.parse(backupData);
       rafraichirChat();
-      afficherToast("Mazungumzo yamerejeshwa");
+      afficherToast("Discussions restaurées !");
     } catch (e) {
-      afficherToast("Hitilafu katika faili la backup");
+      afficherToast("Erreur du fichier de backup.");
     }
   } else {
-    afficherToast("Hakuna backup iliyopatikana");
+    afficherToast("Aucun backup trouvé.");
   }
 }
+
+function deconnecterUtilisateur() {
+  fermerSidebar();
+  
+  localStorage.removeItem('voda_app_approved');
+  localStorage.removeItem('voda_pending_identities');
+  localStorage.removeItem('voda_user_profile');
+  
+  isAppApproved = false;
+  userProfile = { name: "", phone: "", email: "" };
+  
+  document.getElementById('loginNameInput').value = "";
+  document.getElementById('loginPhoneInput').value = "";
+  document.getElementById('identityFormSection').style.display = 'block';
+  document.getElementById('approvalCodeSection').style.display = 'none';
+  
+  verifierEtatApprobationUI();
+  afficherToast("Déconnecté. Un nouveau utilisateur peut s'enregistrer.");
+}
 </script>
+
 </body>
 </html>
