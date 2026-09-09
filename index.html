@@ -746,17 +746,23 @@ function verifierEtatApprobationUI() {
 }
 
 function verifierReponseAgentEnDirect() {
-  if (!userProfile.phone) return;
-  let sanitizedPhone = userProfile.phone.replace(/[.#$\/\[\]]/g, '_');
-  db.ref('voda_approvals/' + sanitizedPhone).on('value', (snapshot) => {
+  if (!userProfile || !userProfile.phone) return;
+  let cleanPhone = userProfile.phone.replace(/\D/g, '');
+  if (!cleanPhone) return;
+  
+  db.ref('voda_approvals/' + cleanPhone).on('value', (snapshot) => {
     let approvalData = snapshot.val();
     const box = document.getElementById('clientLiveAgentResponseBox');
+    if (!box) return;
+    
     if (approvalData) {
       if (approvalData.agentReply) {
         box.textContent = approvalData.agentReply;
       } else {
         box.textContent = "Demande reçue par l'agent. En attente de traitement...";
       }
+    } else {
+      box.textContent = "Aucune demande en cours.";
     }
   });
 }
@@ -1148,18 +1154,42 @@ function repondreMessageAgent(idx) {
 
 function peuplerSelectClientsAgent() {
   const sel = document.getElementById('agentSelectClientTarget');
-  if(!sel) return;
+  if (!sel) return;
+  
   let clientsMap = {};
-  demandes.forEach(d => {
-    if(d.clientPhone) clientsMap[d.clientPhone] = d.clientName || d.clientPhone;
-  });
-  Object.keys(chatStore).forEach(key => {
-    let originalPhone = key.replace(/_/g, '.');
-    if(!clientsMap[originalPhone]) clientsMap[originalPhone] = originalPhone;
-  });
-  clientsMap[userProfile.phone] = userProfile.name;
 
-  sel.innerHTML = Object.entries(clientsMap).map(([phone, name]) => `<option value="${phone}" ${phone === activeChatClientPhone ? 'selected' : ''}>${name} (${phone})</option>`).join('');
+  // 1. Charger les clients depuis les demandes
+  if (Array.isArray(demandes)) {
+    demandes.forEach(d => {
+      if (d.clientPhone) {
+        let cleanPhone = d.clientPhone.replace(/\D/g, ''); // Normalisation stricte
+        clientsMap[cleanPhone] = d.clientName || d.clientPhone;
+      }
+    });
+  }
+
+  // 2. Charger les clients depuis le chatStore
+  if (chatStore && typeof chatStore === 'object') {
+    Object.keys(chatStore).forEach(key => {
+      // Nettoyer la clé stockée pour retrouver un format numérique propre
+      let cleanPhone = key.replace(/\D/g, ''); 
+      if (cleanPhone && !clientsMap[cleanPhone]) {
+        clientsMap[cleanPhone] = cleanPhone;
+      }
+    });
+  }
+
+  // 3. Ajouter l'agent lui-même s'il possède un profil valide
+  if (userProfile && userProfile.phone) {
+    let agentCleanPhone = userProfile.phone.replace(/\D/g, '');
+    // Optionnel : décommenter la ligne suivante si l'agent ne doit pas s'afficher lui-même dans sa propre liste de clients
+    // delete clientsMap[agentCleanPhone]; 
+  }
+
+  // 4. Générer le HTML du select
+  sel.innerHTML = Object.entries(clientsMap)
+    .map(([phone, name]) => `<option value="${phone}" ${phone === activeChatClientPhone ? 'selected' : ''}>${name} (${phone})</option>`)
+    .join('');
 }
 
 function changerClientActifChat(phone) {
