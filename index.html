@@ -628,14 +628,8 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
- try {
-  firebase.database().enablePersistence()
-    .catch((err) => {
-      if (err.code === 'unimplemented') {
-        // La persistance ne peut pas être activée dans ce navigateur (ex: navigation privée)
-        console.log("Persistance non supportée par le navigateur.");
-      }
-    });
+try {
+  firebase.database().enablePersistence().catch((err) => {});
 } catch(e) {}
 
 const optionsDetails = {
@@ -664,8 +658,7 @@ let pendingIdentities = JSON.parse(localStorage.getItem('voda_pending_identities
 
 let demandes = [];
 let chatStore = {};
-let activeChatClientPhone = userProfile.phone;
-let unreadMessagesCount = 0;
+let activeChatClientPhone = userProfile.phone ? userProfile.phone.replace(/[.#$\/\[\]]/g, '_') : "";
 
 // ==========================================
 // UTILITAIRES & SONS
@@ -688,6 +681,7 @@ window.onload = function() {
   verifierEtatApprobationUI();
   initialiserListenersFirebase();
 };
+
 function synchroniserRequetesHorsLigne() {
   let localQueue = JSON.parse(localStorage.getItem('voda_offline_queue') || '[]');
   if (localQueue.length > 0 && navigator.onLine) {
@@ -701,14 +695,12 @@ function synchroniserRequetesHorsLigne() {
     });
   }
 }
-// Appel de la synchro toutes les 30 secondes si en ligne
 setInterval(synchroniserRequetesHorsLigne, 30000);
 
 // ==========================================
-// FIREBASE LISTENERS OPTIMISÉS (LIMITES & PAGINATION)
+// FIREBASE LISTENERS OPTIMISÉS
 // ==========================================
 function initialiserListenersFirebase() {
-  // Limiter à 50 éléments récents pour éviter la surcharge réseau
   db.ref('voda_dossiers').limitToLast(50).on('value', (snapshot) => {
     const data = snapshot.val();
     demandes = [];
@@ -725,7 +717,6 @@ function initialiserListenersFirebase() {
     }
   });
 
-  // Chargement optimisé par chat actif ou global allégé
   db.ref('voda_chats').on('value', (snapshot) => {
     const data = snapshot.val();
     chatStore = data || {};
@@ -740,16 +731,14 @@ function initialiserListenersFirebase() {
 function changerMethodeApprobationUI() {
   const method = document.getElementById('approvalMethodSelect').value;
   const emailContainer = document.getElementById('emailInputContainer');
-  if (method === '2') {
-    emailContainer.style.display = 'block';
-  } else {
-    emailContainer.style.display = 'none';
-  }
+  emailContainer.style.display = (method === '2') ? 'block' : 'none';
 }
 
 function verifierEtatApprobationUI() {
   const loginCard = document.getElementById('newcomerLoginCard');
   const mainServices = document.getElementById('mainServicesContent');
+  const approvalCodeSec = document.getElementById('approvalCodeSection');
+  const identityFormSec = document.getElementById('identityFormSection');
   
   if (isAppApproved) {
     loginCard.style.display = 'none';
@@ -757,18 +746,21 @@ function verifierEtatApprobationUI() {
   } else {
     mainServices.style.display = 'none';
     loginCard.style.display = 'block';
-    if (pendingIdentities) {
-      document.getElementById('identityFormSection').style.display = 'none';
-      document.getElementById('approvalCodeSection').style.display = 'block';
+    if (pendingIdentities || localStorage.getItem('voda_pending_identities')) {
+      identityFormSec.style.display = 'none';
+      approvalCodeSec.style.display = 'block';
       document.getElementById('statusApprovalMsg').textContent = "Demande envoyée. En attente du code de l'agent...";
       verifierReponseAgentEnDirect();
+    } else {
+      identityFormSec.style.display = 'block';
+      approvalCodeSec.style.display = 'none';
     }
   }
 }
 
 function verifierReponseAgentEnDirect() {
   if (!userProfile || !userProfile.phone) return;
-  let cleanPhone = userProfile.phone.replace(/\D/g, '');
+  let cleanPhone = userProfile.phone.replace(/[.#$\/\[\]]/g, '_');
   if (!cleanPhone) return;
   
   db.ref('voda_approvals/' + cleanPhone).on('value', (snapshot) => {
@@ -812,7 +804,7 @@ function soumettreIdentiteNouveauVenu() {
 
   userProfile = { name: name, phone: phone, email: email };
   localStorage.setItem('voda_user_profile', JSON.stringify(userProfile));
-  activeChatClientPhone = phone;
+  activeChatClientPhone = phone.replace(/[.#$\/\[\]]/g, '_');
   chargerProfileUI();
 
   pendingIdentities = { name: name, phone: phone, email: email, method: method, timestamp: Date.now() };
@@ -842,9 +834,9 @@ function validerCodeApprobation() {
   const enteredCode = document.getElementById('approvalCodeInput').value.trim();
   let sanitizedPhone = userProfile.phone.replace(/[.#$\/\[\]]/g, '_');
   
-  const btn = document.querySelector('.btn-success') || event.target;
+  const btn = event.target;
   const originalText = btn.innerHTML;
-  btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Vérification...`;
+  btn.innerHTML = "Vérification...";
   btn.disabled = true;
 
   db.ref('voda_approvals/' + sanitizedPhone).once('value', (snapshot) => {
@@ -856,6 +848,7 @@ function validerCodeApprobation() {
       isAppApproved = true;
       localStorage.setItem('voda_app_approved', 'true');
       localStorage.removeItem('voda_pending_identities');
+      pendingIdentities = null;
       verifierEtatApprobationUI();
       afficherToast("Accès approuvé ! Bienvenue.");
     } else {
@@ -871,15 +864,11 @@ function validerCodeApprobation() {
 function verifierApprobationTempsReel() {
   if (!isAppApproved && userProfile.phone) {
     let sanitizedPhone = userProfile.phone.replace(/[.#$\/\[\]]/g, '_');
-    const responseBox = document.getElementById('clientLiveAgentResponseBox');
     
     db.ref('voda_approvals/' + sanitizedPhone).once('value', (snapshot) => {
       let approvalData = snapshot.val();
-      if(approvalData && approvalData.approved) {
-        isAppApproved = true;
-        localStorage.setItem('voda_app_approved', 'true');
-        verifierEtatApprobationUI();
-        afficherToast("Approbation détectée !");
+      if(approvalData && (approvalData.approved === true || approvalData.code)) {
+        // Optionnel : s'assurer que si l'agent a validé ou répondu, on autorise l'accès ou on facilite la saisie du code
       }
     });
   }
@@ -943,7 +932,7 @@ function sauvegarderProfile() {
   
   userProfile = { ...userProfile, name: n, phone: p };
   localStorage.setItem('voda_user_profile', JSON.stringify(userProfile));
-  activeChatClientPhone = p;
+  activeChatClientPhone = p.replace(/[.#$\/\[\]]/g, '_');
   chargerProfileUI();
   fermerProfilModal();
   afficherToast("Profil mis à jour !");
@@ -1082,9 +1071,10 @@ function fermerModalImageBg(event) { if(event.target.id === 'imageModal') fermer
 // CHAT & NOTIFICATIONS
 // ==========================================
 function getActiveChatMessages() {
+  if(!activeChatClientPhone) return [{ sender: "Agent", text: "Bienvenue sur Vodacom Agent Pro." }];
   let sanitizedPhone = activeChatClientPhone.replace(/[.#$\/\[\]]/g, '_');
   if(!chatStore[sanitizedPhone]) {
-    return [{ sender: "Agent", text: `Bonjour ${userProfile.name} ! Bienvenue sur Vodacom Agent Pro.` }];
+    return [{ sender: "Agent", text: `Bienvenue sur Vodacom Agent Pro.` }];
   }
   return chatStore[sanitizedPhone];
 }
@@ -1179,35 +1169,24 @@ function peuplerSelectClientsAgent() {
   
   let clientsMap = {};
 
-  // 1. Charger les clients depuis les demandes
   if (Array.isArray(demandes)) {
     demandes.forEach(d => {
       if (d.clientPhone) {
-        let cleanPhone = d.clientPhone.replace(/\D/g, ''); // Normalisation stricte
+        let cleanPhone = d.clientPhone.replace(/[.#$\/\[\]]/g, '_');
         clientsMap[cleanPhone] = d.clientName || d.clientPhone;
       }
     });
   }
 
-  // 2. Charger les clients depuis le chatStore
   if (chatStore && typeof chatStore === 'object') {
     Object.keys(chatStore).forEach(key => {
-      // Nettoyer la clé stockée pour retrouver un format numérique propre
-      let cleanPhone = key.replace(/\D/g, ''); 
+      let cleanPhone = key.replace(/[.#$\/\[\]]/g, '_');
       if (cleanPhone && !clientsMap[cleanPhone]) {
         clientsMap[cleanPhone] = cleanPhone;
       }
     });
   }
 
-  // 3. Ajouter l'agent lui-même s'il possède un profil valide
-  if (userProfile && userProfile.phone) {
-    let agentCleanPhone = userProfile.phone.replace(/\D/g, '');
-    // Optionnel : décommenter la ligne suivante si l'agent ne doit pas s'afficher lui-même dans sa propre liste de clients
-    // delete clientsMap[agentCleanPhone]; 
-  }
-
-  // 4. Générer le HTML du select
   sel.innerHTML = Object.entries(clientsMap)
     .map(([phone, name]) => `<option value="${phone}" ${phone === activeChatClientPhone ? 'selected' : ''}>${name} (${phone})</option>`)
     .join('');
@@ -1245,7 +1224,9 @@ function copierRapportJour() {
 function afficherDemandesClient(filterQuery = "") {
   const list = document.getElementById('clientOrdersList');
   if(!list) return;
-  let myDossiers = demandes.filter(d => d.clientPhone === userProfile.phone);
+  let cleanMyPhone = userProfile.phone ? userProfile.phone.replace(/[.#$\/\[\]]/g, '_') : "";
+  let myDossiers = demandes.filter(d => d.clientPhone === cleanMyPhone || d.clientPhone === userProfile.phone);
+  
   if(myDossiers.length === 0) {
     list.innerHTML = `<div style="color:var(--voda-muted);">Aucune demande effectuée pour le moment.</div>`;
     return;
@@ -1372,7 +1353,6 @@ function soumettreDemande() {
 
   let now = new Date();
   let dossierId = Date.now();
-  // Normalisation propre du numéro pour éviter les erreurs de chemin Firebase
   let cleanClientPhone = userProfile.phone.replace(/[.#$\/\[\]]/g, '_');
 
   let nouvelleDemande = {
@@ -1388,14 +1368,12 @@ function soumettreDemande() {
     amount: priceNum
   };
 
-  // Sécurité Timeout (10 secondes max)
   let isCompleted = false;
   let timeoutId = setTimeout(() => {
     if (!isCompleted) {
       isCompleted = true;
       document.getElementById('processingModal').style.display = "none";
       afficherToast("Connexion lente : la demande a été mise en file d'attente.");
-      // Sauvegarde de secours locale
       let localQueue = JSON.parse(localStorage.getItem('voda_offline_queue') || '[]');
       localQueue.push(nouvelleDemande);
       localStorage.setItem('voda_offline_queue', JSON.stringify(localQueue));
@@ -1443,7 +1421,7 @@ function tonaJibuLaKiotomatikiKwaMteja(nambariYaMteja, jinaLaHuduma) {
   const ujumbeAuto = `Bonjour ! Votre demande pour "${jinaLaHuduma || 'cette opération'}" a bien été reçue. Un agent va la traiter. Merci pour votre confiance !`;
 
   let sanitizedPhone = nambariYaMteja.replace(/[.#$\/\[\]]/g, '_');
-  let msgs = [...getActiveChatMessages()];
+  let msgs = chatStore[sanitizedPhone] ? [...chatStore[sanitizedPhone]] : [];
   msgs.push({ sender: "Agent", text: ujumbeAuto });
 
   db.ref('voda_chats/' + sanitizedPhone).set(msgs);
@@ -1498,6 +1476,7 @@ function deconnecterUtilisateur() {
   localStorage.removeItem('voda_user_profile');
   
   isAppApproved = false;
+  pendingIdentities = null;
   userProfile = { name: "", phone: "", email: "" };
   
   document.getElementById('loginNameInput').value = "";
@@ -1511,4 +1490,4 @@ function deconnecterUtilisateur() {
 </script>
 
 </body>
-   </html>
+</html>
