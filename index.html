@@ -628,8 +628,14 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
-try {
-  db.goOnline();
+ try {
+  firebase.database().enablePersistence()
+    .catch((err) => {
+      if (err.code === 'unimplemented') {
+        // La persistance ne peut pas être activée dans ce navigateur (ex: navigation privée)
+        console.log("Persistance non supportée par le navigateur.");
+      }
+    });
 } catch(e) {}
 
 const optionsDetails = {
@@ -682,6 +688,21 @@ window.onload = function() {
   verifierEtatApprobationUI();
   initialiserListenersFirebase();
 };
+function synchroniserRequetesHorsLigne() {
+  let localQueue = JSON.parse(localStorage.getItem('voda_offline_queue') || '[]');
+  if (localQueue.length > 0 && navigator.onLine) {
+    localQueue.forEach((demande, index) => {
+      db.ref('voda_dossiers/' + demande.id).set(demande, (error) => {
+        if (!error) {
+          localQueue.splice(index, 1);
+          localStorage.setItem('voda_offline_queue', JSON.stringify(localQueue));
+        }
+      });
+    });
+  }
+}
+// Appel de la synchro toutes les 30 secondes si en ligne
+setInterval(synchroniserRequetesHorsLigne, 30000);
 
 // ==========================================
 // FIREBASE LISTENERS OPTIMISÉS (LIMITES & PAGINATION)
@@ -1351,9 +1372,12 @@ function soumettreDemande() {
 
   let now = new Date();
   let dossierId = Date.now();
+  // Normalisation propre du numéro pour éviter les erreurs de chemin Firebase
+  let cleanClientPhone = userProfile.phone.replace(/[.#$\/\[\]]/g, '_');
+
   let nouvelleDemande = {
     id: dossierId,
-    clientPhone: userProfile.phone,
+    clientPhone: cleanClientPhone,
     clientName: userProfile.name,
     service: activeOptionName,
     details: details,
@@ -1364,13 +1388,31 @@ function soumettreDemande() {
     amount: priceNum
   };
 
+  // Sécurité Timeout (10 secondes max)
+  let isCompleted = false;
+  let timeoutId = setTimeout(() => {
+    if (!isCompleted) {
+      isCompleted = true;
+      document.getElementById('processingModal').style.display = "none";
+      afficherToast("Connexion lente : la demande a été mise en file d'attente.");
+      // Sauvegarde de secours locale
+      let localQueue = JSON.parse(localStorage.getItem('voda_offline_queue') || '[]');
+      localQueue.push(nouvelleDemande);
+      localStorage.setItem('voda_offline_queue', JSON.stringify(localQueue));
+    }
+  }, 10000);
+
   db.ref('voda_dossiers/' + dossierId).set(nouvelleDemande, (error) => {
+    if (isCompleted) return;
+    isCompleted = true;
+    clearTimeout(timeoutId);
+    
     document.getElementById('processingModal').style.display = "none";
     if (error) {
-      afficherToast("Erreur lors de l'envoi. Vérifiez votre connexion !");
+      afficherToast("Erreur réseau : échec de l'envoi vers le serveur.");
     } else {
       afficherToast("Demande envoyée avec succès !");
-      tonaJibuLaKiotomatikiKwaMteja(userProfile.phone, activeOptionName);
+      tonaJibuLaKiotomatikiKwaMteja(cleanClientPhone, activeOptionName);
     }
   });
 }
@@ -1469,4 +1511,4 @@ function deconnecterUtilisateur() {
 </script>
 
 </body>
-</html>
+   </html>
