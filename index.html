@@ -264,7 +264,6 @@ header h1 {
   <button onclick="ouvrirModalChangementPin()" class="btn-sec">🔑 Modifier PIN / Mot de passe</button>
   <button onclick="ouvrirModalGuide()" class="btn-sec">📖 Comment utiliser l'app</button>
   <button onclick="gererClicBoutonAgent()" class="btn-sec" id="roleToggle">🔄 Mode : CLIENT</button>
-  <button onclick="verrouillerApp()" class="btn-danger">🔒 Verrouiller l'application</button>
   <button onclick="deconnecterUtilisateur()" class="btn-danger" style="background:#d97706;">🚪 Changer d'utilisateur</button>
 </div>
 
@@ -283,61 +282,11 @@ header h1 {
 
 <div class="container">
   
-  <!-- 1. PAGE ACCUEIL / LOGIN APPROVAL -->
+  <!-- 1. PAGE ACCUEIL / SERVICES DIRECTS -->
   <div id="sec-services" class="section active">
     
-    <!-- CARTE LOGIN / ENREGISTREMENT NOUVEAU VENU -->
-    <div id="newcomerLoginCard" class="card" style="border: 2px solid var(--voda-red); margin-bottom: 20px;">
-      <h3 style="color: var(--voda-red); margin-bottom: 8px;">🔐 Espace d'Authentification</h3>
-      <p style="font-size: 0.8rem; color: var(--voda-muted); margin-bottom: 12px;">Choisissez votre méthode d'approbation pour entrer dans l'application.</p>
-      
-      <!-- FORMULAIRE -->
-      <div id="identityFormSection">
-        <label>Nom complet :</label>
-        <input type="text" id="loginNameInput" placeholder="Ex: Jean Paul">
-        
-        <label>Numéro de téléphone :</label>
-        <input type="text" id="loginPhoneInput" placeholder="Ex: +243...">
-        
-        <div id="emailInputContainer" style="display:none; margin-top: 10px;">
-          <label>Votre adresse email (pour recevoir le code) :</label>
-          <input type="email" id="loginEmailInput" placeholder="Ex: monemail@gmail.com">
-        </div>
-        
-        <label style="margin-top:12px;">Méthode d'approbation :</label>
-        <select id="approvalMethodSelect" onchange="changerMethodeApprobationUI()" style="margin-bottom: 12px;">
-          <option value="1">1. Méthode intégrée (Chat de l'app)</option>
-          <option value="2">2. Envoyer la demande par Email (vodacomagentpro@gmail.com)</option>
-        </select>
-        
-        <!-- Bouton de soumission -->
-        <button onclick="soumettreIdentiteNouveauVenu()" class="btn-success" id="btnSoumettreAuth">Soumettre ma demande d'approbation</button>
-      </div>
-
-      <!-- SPINNER / CHARGEMENT (Caché par défaut) -->
-      <div id="authLoadingSpinner" style="display: none; text-align: center; padding: 20px;">
-        <div class="spinner" style="border: 4px solid rgba(255, 255, 255, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: var(--voda-red); animation: spin 1s linear infinite; margin: 0 auto 10px auto;"></div>
-        <p style="font-size: 0.85rem; color: var(--voda-muted);" id="loadingText">Traitement de votre demande en cours...</p>
-      </div>
-    </div>
-
-    <!-- SECTION CODE D'APPROBATION -->
-    <div id="approvalCodeSection" style="display:none; margin-top: 15px; background: #222; padding: 12px; border-radius: 8px;">
-      <p style="font-size: 0.85rem; color: var(--success); margin-bottom: 8px;" id="statusApprovalMsg">Demande envoyée. En attente du code de l'agent...</p>
-      
-      <!-- BOÎTE DE RÉPONSE DE L'AGENT -->
-      <div id="agentResponseBoxContainer" style="background:#181818; border:1px solid var(--voda-red); padding:10px; border-radius:6px; margin-bottom:12px;">
-        <label style="color:var(--voda-red); margin-top:0;">Boîte de réponse de l'Agent :</label>
-        <div id="clientLiveAgentResponseBox" style="font-size:0.85rem; color:#38bdf8; min-height:30px; padding:5px 0;">En attente de communication avec l'agent...</div>
-      </div>
-
-      <label>Code d'entrée (reçu de l'agent) :</label>
-      <input type="text" id="approvalCodeInput" placeholder="Ex: 123456" style="margin-bottom: 8px;">
-      <button onclick="validerCodeApprobation()" class="btn-success">Entrer dans l'application</button>
-    </div>
-
-    <!-- SERVICES PRINCIPAUX (Masqués tant que non approuvé) -->
-    <div id="mainServicesContent" style="display:none;">
+    <!-- SERVICES PRINCIPAUX (Disponibles immédiatement sans authentification ni approbation) -->
+    <div id="mainServicesContent">
       <div class="welcome-banner">
         <h2 id="welcomeUserName">Bonjour Byaombe Alembe ! 👋</h2>
         <p>Sélectionnez un service ci-dessous pour initier votre requête rapidement.</p>
@@ -422,17 +371,6 @@ header h1 {
     <div id="agentClientSelectorContainer" style="display:none; margin-bottom:10px;">
       <label style="font-size:0.8rem; color:var(--voda-red);">Sélectionner un client (Mode Agent) :</label>
       <select id="agentSelectClientTarget" onchange="changerClientActifChat(this.value)" style="width:100%; padding:8px; background:#222; border:1px solid var(--border); color:#fff; border-radius:6px;"></select>
-    </div>
-
-    <!-- PANNEAU AGENT -->
-    <div id="agentApprovalPanel" style="display:none;" class="card">
-      <h4 style="color:var(--voda-red); font-size:0.9rem; margin-bottom:6px;">🛡️ Approuver l'entrée du nouveau</h4>
-      <p style="font-size:0.8rem; color:#ddd; margin-bottom:8px;" id="agentNewcomerInfoDisplay">Identités du nouveau client s'afficheront ici.</p>
-      <label>Générer un code d'approbation :</label>
-      <div style="display:flex; gap:6px;">
-        <input type="text" id="agentGeneratedCodeInput" placeholder="Ex: 8492" style="flex:1;">
-        <button onclick="envoyerCodeApprobationAuNouveau()" class="btn-success" style="width:auto; padding:0 15px;">Envoyer</button>
-      </div>
     </div>
 
     <div class="card" style="margin-top:10px; height:340px; padding:12px; overflow-y:auto;" id="chatBox"></div>
@@ -653,8 +591,6 @@ let paymentProofImage = "";
 let currentSelectedDossierId = null;
 
 let userProfile = JSON.parse(localStorage.getItem('voda_user_profile')) || { name: "Byaombe Alembe", phone: "+243000000000", email: "" };
-let isAppApproved = localStorage.getItem('voda_app_approved') === 'true';
-let pendingIdentities = JSON.parse(localStorage.getItem('voda_pending_identities')) || null;
 
 let demandes = [];
 let chatStore = {};
@@ -678,7 +614,6 @@ function playClickSound() {
 
 window.onload = function() {
   chargerProfileUI();
-  verifierEtatApprobationUI();
   initialiserListenersFirebase();
 };
 
@@ -721,157 +656,7 @@ function initialiserListenersFirebase() {
     const data = snapshot.val();
     chatStore = data || {};
     rafraichirChat();
-    verifierApprobationTempsReel();
   });
-}
-
-// ==========================================
-// AUTHENTIFICATION & APPROBATION
-// ==========================================
-function changerMethodeApprobationUI() {
-  const method = document.getElementById('approvalMethodSelect').value;
-  const emailContainer = document.getElementById('emailInputContainer');
-  emailContainer.style.display = (method === '2') ? 'block' : 'none';
-}
-
-function verifierEtatApprobationUI() {
-  const loginCard = document.getElementById('newcomerLoginCard');
-  const mainServices = document.getElementById('mainServicesContent');
-  const approvalCodeSec = document.getElementById('approvalCodeSection');
-  const identityFormSec = document.getElementById('identityFormSection');
-  
-  if (isAppApproved) {
-    loginCard.style.display = 'none';
-    mainServices.style.display = 'block';
-  } else {
-    mainServices.style.display = 'none';
-    loginCard.style.display = 'block';
-    if (pendingIdentities || localStorage.getItem('voda_pending_identities')) {
-      identityFormSec.style.display = 'none';
-      approvalCodeSec.style.display = 'block';
-      document.getElementById('statusApprovalMsg').textContent = "Demande envoyée. En attente du code de l'agent...";
-      verifierReponseAgentEnDirect();
-    } else {
-      identityFormSec.style.display = 'block';
-      approvalCodeSec.style.display = 'none';
-    }
-  }
-}
-
-function verifierReponseAgentEnDirect() {
-  if (!userProfile || !userProfile.phone) return;
-  let cleanPhone = userProfile.phone.replace(/[.#$\/\[\]]/g, '_');
-  if (!cleanPhone) return;
-  
-  db.ref('voda_approvals/' + cleanPhone).on('value', (snapshot) => {
-    let approvalData = snapshot.val();
-    const box = document.getElementById('clientLiveAgentResponseBox');
-    if (!box) return;
-    
-    if (approvalData) {
-      if (approvalData.agentReply) {
-        box.textContent = approvalData.agentReply;
-      } else {
-        box.textContent = "Demande reçue par l'agent. En attente de traitement...";
-      }
-    } else {
-      box.textContent = "Aucune demande en cours.";
-    }
-  });
-}
-
-function soumettreIdentiteNouveauVenu() {
-  playClickSound();
-  const name = document.getElementById('loginNameInput').value.trim();
-  const phone = document.getElementById('loginPhoneInput').value.trim();
-  const method = document.getElementById('approvalMethodSelect').value;
-  let email = "";
-
-  if(!name || !phone) return afficherToast("Veuillez remplir vos identités !");
-
-  if (method === '2') {
-    email = document.getElementById('loginEmailInput').value.trim();
-    if(!email) return afficherToast("Veuillez remplir votre adresse email !");
-    
-    let sujet = encodeURIComponent("Demande d'approbation d'accès - Vodacom Agent Pro");
-    let corps = encodeURIComponent(`Bonjour l'Agent,\n\nJe souhaite obtenir l'approbation pour entrer dans l'application Vodacom Agent Pro.\n\nNom : ${name}\nTéléphone : ${phone}\nMon Email : ${email}\n\nVeuillez m'envoyer mon code d'approbation.\nMerci.`);
-    window.location.href = `mailto:vodacomagentpro@gmail.com?subject=${sujet}&body=${corps}`;
-  }
-  
-  document.getElementById('identityFormSection').style.display = 'none';
-  const spinnerContainer = document.getElementById('authLoadingSpinner');
-  if(spinnerContainer) spinnerContainer.style.display = 'block';
-
-  userProfile = { name: name, phone: phone, email: email };
-  localStorage.setItem('voda_user_profile', JSON.stringify(userProfile));
-  activeChatClientPhone = phone.replace(/[.#$\/\[\]]/g, '_');
-  chargerProfileUI();
-
-  pendingIdentities = { name: name, phone: phone, email: email, method: method, timestamp: Date.now() };
-  localStorage.setItem('voda_pending_identities', JSON.stringify(pendingIdentities));
-
-  let sanitizedPhone = phone.replace(/[.#$\/\[\]]/g, '_');
-  let msgs = chatStore[sanitizedPhone] || [];
-  msgs.push({ sender: name, text: `[NOUVEAU VENU - Option ${method}] Demande d'approbation.\nNom : ${name}\nTéléphone : ${phone}` + (email ? `\nEmail : ${email}` : '') });
-  
-  db.ref('voda_chats/' + sanitizedPhone).set(msgs, (error) => {
-    if(spinnerContainer) spinnerContainer.style.display = 'none';
-
-    if(!error) {
-      document.getElementById('approvalCodeSection').style.display = 'block';
-      document.getElementById('statusApprovalMsg').textContent = "Demande transmise avec succès ! En attente du code...";
-      verifierReponseAgentEnDirect();
-      afficherToast("Demande d'approbation envoyée !");
-    } else {
-      document.getElementById('identityFormSection').style.display = 'block';
-      afficherToast("Erreur lors de l'envoi de la demande.");
-    }
-  });
-}
-
-function validerCodeApprobation() {
-  playClickSound();
-  const enteredCode = document.getElementById('approvalCodeInput').value.trim();
-  let sanitizedPhone = userProfile.phone.replace(/[.#$\/\[\]]/g, '_');
-  
-  const btn = event.target;
-  const originalText = btn.innerHTML;
-  btn.innerHTML = "Vérification...";
-  btn.disabled = true;
-
-  db.ref('voda_approvals/' + sanitizedPhone).once('value', (snapshot) => {
-    btn.innerHTML = originalText;
-    btn.disabled = false;
-
-    let approvalData = snapshot.val();
-    if(approvalData && String(approvalData.code).trim() === enteredCode) {
-      isAppApproved = true;
-      localStorage.setItem('voda_app_approved', 'true');
-      localStorage.removeItem('voda_pending_identities');
-      pendingIdentities = null;
-      verifierEtatApprobationUI();
-      afficherToast("Accès approuvé ! Bienvenue.");
-    } else {
-      afficherToast("Code d'approbation incorrect !");
-    }
-  }).catch((error) => {
-    btn.innerHTML = originalText;
-    btn.disabled = false;
-    afficherToast("Erreur de connexion.");
-  });
-}
-
-function verifierApprobationTempsReel() {
-  if (!isAppApproved && userProfile.phone) {
-    let sanitizedPhone = userProfile.phone.replace(/[.#$\/\[\]]/g, '_');
-    
-    db.ref('voda_approvals/' + sanitizedPhone).once('value', (snapshot) => {
-      let approvalData = snapshot.val();
-      if(approvalData && (approvalData.approved === true || approvalData.code)) {
-        // Optionnel : s'assurer que si l'agent a validé ou répondu, on autorise l'accès ou on facilite la saisie du code
-      }
-    });
-  }
 }
 
 // ==========================================
@@ -941,14 +726,6 @@ function sauvegarderProfile() {
 function ouvrirSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').style.display = 'block'; }
 function fermerSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').style.display = 'none'; }
 
-function verrouillerApp() {
-  fermerSidebar();
-  isAppApproved = false;
-  localStorage.setItem('voda_app_approved', 'false');
-  verifierEtatApprobationUI();
-  afficherToast("Application verrouillée.");
-}
-
 function naviguer(secId, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => {
@@ -975,7 +752,6 @@ function gererClicBoutonAgent() {
     document.getElementById('roleToggle').textContent = "🔄 Mode : CLIENT";
     document.getElementById('navAgentBtn').style.display = "none";
     document.getElementById('agentClientSelectorContainer').style.display = "none";
-    document.getElementById('agentApprovalPanel').style.display = "none";
     naviguer('sec-services', document.querySelector('nav button'));
     afficherToast("Basculement en mode client.");
   } else {
@@ -993,10 +769,8 @@ function verifierEtBasculerAgent() {
   document.getElementById('roleToggle').textContent = "🛡️ Mode : AGENT";
   document.getElementById('navAgentBtn').style.display = "flex";
   document.getElementById('agentClientSelectorContainer').style.display = "block";
-  document.getElementById('agentApprovalPanel').style.display = "block";
   fermerModalAgent();
   peuplerSelectClientsAgent();
-  mettreAJourPanneauApprobationAgent();
   naviguer('sec-agent', document.getElementById('navAgentBtn'));
   afficherToast("Mode Agent activé !");
 }
@@ -1091,41 +865,6 @@ function rafraichirChat() {
     </div>
   `).join('');
   box.scrollTop = box.scrollHeight;
-  if(currentRole === 'AGENT') {
-    mettreAJourPanneauApprobationAgent();
-  }
-}
-
-function mettreAJourPanneauApprobationAgent() {
-  const infoDisplay = document.getElementById('agentNewcomerInfoDisplay');
-  if(!infoDisplay) return;
-  let msgs = getActiveChatMessages();
-  let foundNewcomerMsg = msgs.find(m => m.text && m.text.includes('[NOUVEAU VENU'));
-  if(foundNewcomerMsg) {
-    infoDisplay.innerHTML = `<strong style="color:var(--success);">Client actif :</strong><br>${foundNewcomerMsg.text.replace(/\n/g, '<br>')}`;
-  } else {
-    infoDisplay.textContent = `Aucune identité en attente pour (${activeChatClientPhone}).`;
-  }
-}
-
-function envoyerCodeApprobationAuNouveau() {
-  playClickSound();
-  const code = document.getElementById('agentGeneratedCodeInput').value.trim();
-  if(!code) return afficherToast("Veuillez saisir un code d'approbation !");
-  
-  let sanitizedPhone = activeChatClientPhone.replace(/[.#$\/\[\]]/g, '_');
-  let replyText = `Code d'approbation d'entrée : ${code}. Veuillez le saisir.`;
-  
-  db.ref('voda_approvals/' + sanitizedPhone).set({ code: code, approved: false, agentReply: replyText }, (err) => {
-    if(!err) {
-      let msgs = [...getActiveChatMessages()];
-      msgs.push({ sender: "Agent", text: replyText });
-      db.ref('voda_chats/' + sanitizedPhone).set(msgs);
-      
-      afficherToast("Code envoyé avec succès !");
-      document.getElementById('agentGeneratedCodeInput').value = "";
-    }
-  });
 }
 
 function envoyerMessage() {
@@ -1195,7 +934,6 @@ function peuplerSelectClientsAgent() {
 function changerClientActifChat(phone) {
   activeChatClientPhone = phone;
   rafraichirChat();
-  mettreAJourPanneauApprobationAgent();
 }
 
 // ==========================================
@@ -1471,21 +1209,11 @@ function rejeshaBackupChatPro() {
 function deconnecterUtilisateur() {
   fermerSidebar();
   
-  localStorage.removeItem('voda_app_approved');
-  localStorage.removeItem('voda_pending_identities');
   localStorage.removeItem('voda_user_profile');
+  userProfile = { name: "Byaombe Alembe", phone: "+243000000000", email: "" };
+  chargerProfileUI();
   
-  isAppApproved = false;
-  pendingIdentities = null;
-  userProfile = { name: "", phone: "", email: "" };
-  
-  document.getElementById('loginNameInput').value = "";
-  document.getElementById('loginPhoneInput').value = "";
-  document.getElementById('identityFormSection').style.display = 'block';
-  document.getElementById('approvalCodeSection').style.display = 'none';
-  
-  verifierEtatApprobationUI();
-  afficherToast("Déconnecté. Un nouveau utilisateur peut s'enregistrer.");
+  afficherToast("Profil réinitialisé.");
 }
 </script>
 
